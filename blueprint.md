@@ -24,9 +24,6 @@ This document outlines the architecture, features, and design of the personal fi
 ### Category Management
 
 - **Separate Categories for Income and Expense:** The application now enforces separate category lists for income and expense transactions. When adding or editing a transaction, the category dropdown menu dynamically updates to show only the relevant categories based on the selected transaction type (income or expense).
-- **Edit and Delete Categories:** Users can edit and delete categories for their transactions. Categories can be either income or expense types.
-- **Category List Screen:** Displays a list of all created categories with options to edit or delete them.
-- **Edit Category Screen:** Allows users to modify the name and type of an existing category.
 
 ### Budget Management
 
@@ -44,8 +41,8 @@ This document outlines the architecture, features, and design of the personal fi
 
 ### Navigation
 
-- **Main Screen:** The app uses a `MainScreen` that contains a `BottomNavigationBar`, a `PageView` to switch between the main screens (Home, Categories, Budgets), and a `MainDrawer` for navigation.
-- **Main Drawer:** A `MainDrawer` provides navigation to Home, Categories, and Budgets.
+- **Main Screen:** The app uses a `MainScreen` that contains a `BottomNavigationBar` and a `PageView` to switch between the main screens (Home and Budgets), and a `MainDrawer` for navigation.
+- **Main Drawer:** A `MainDrawer` provides navigation to Home and Budgets.
 
 ### State Management
 

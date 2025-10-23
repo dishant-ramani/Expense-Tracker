@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/screens/category_list_screen.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_list_screen.dart';
 import 'package:myapp/screens/settings_screen.dart';
@@ -27,18 +26,6 @@ class MainDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const HomeScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('Categories'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CategoryListScreen(),
-                ),
               );
             },
           ),

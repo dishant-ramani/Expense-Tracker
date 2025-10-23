@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/home_screen.dart';
-import 'package:myapp/screens/category_list_screen.dart';
 import 'package:myapp/screens/budget_list_screen.dart';
 import 'package:myapp/widgets/main_drawer.dart';
 
@@ -17,13 +16,11 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const CategoryListScreen(),
     const BudgetListScreen(),
   ];
 
   final List<String> _titles = [
     'Home',
-    'Categories',
     'Budgets',
   ];
 
@@ -55,10 +52,6 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_balance_wallet),
             label: 'Budgets',
