@@ -28,11 +28,6 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addCategory(Category category) async {
-    await _categoryService.addCategory(category);
-    await _loadCategories();
-  }
-
   Future<void> updateCategory(Category category) async {
     await _categoryService.updateCategory(category);
     await _loadCategories();

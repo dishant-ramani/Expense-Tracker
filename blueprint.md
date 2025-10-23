@@ -23,9 +23,8 @@ This document outlines the architecture, features, and design of the personal fi
 
 ### Category Management
 
-- **Create, Edit, and Delete Categories:** Users can create, edit, and delete categories for their transactions. Categories can be either income or expense types.
+- **Edit and Delete Categories:** Users can edit and delete categories for their transactions. Categories can be either income or expense types.
 - **Category List Screen:** Displays a list of all created categories with options to edit or delete them.
-- **Add Category Screen:** A dedicated screen with a form to create a new category, specifying its name and type (income or expense).
 - **Edit Category Screen:** Allows users to modify the name and type of an existing category.
 
 ### Budget Management
@@ -66,8 +65,3 @@ This document outlines the architecture, features, and design of the personal fi
 ## Final Touches
 
 - **Code Formatting:** The entire codebase has been formatted using `dart format .` to ensure consistency and readability.
-
-## Current Plan
-
-- **Task:** Fix missing Category List screen and related features.
-- **Status:** Completed. Created CategoryListScreen, AddCategoryScreen, and EditCategoryScreen. Integrated them into the main navigation.
