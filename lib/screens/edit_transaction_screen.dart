@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/models/transaction.dart';
-import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +21,23 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   late String _selectedCategory;
   late String _selectedType;
 
+  final List<String> _expenseCategories = [
+    'Food',
+    'Transport',
+    'Bills',
+    'Shopping',
+    'Entertainment',
+    'Others',
+  ];
+
+  final List<String> _incomeCategories = [
+    'Salary',
+    'Business',
+    'Investment',
+    'Gift',
+    'Others',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +54,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categoryProvider = Provider.of<CategoryProvider>(context);
+    final categories =
+        _selectedType == 'expense' ? _expenseCategories : _incomeCategories;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Transaction')),
@@ -63,12 +80,28 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
+                value: _selectedType,
+                decoration: const InputDecoration(labelText: 'Type'),
+                items: const [
+                  DropdownMenuItem(value: 'expense', child: Text('Expense')),
+                  DropdownMenuItem(value: 'income', child: Text('Income')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedType = value!;
+                    _selectedCategory = (value == 'expense'
+                        ? _expenseCategories
+                        : _incomeCategories)[0];
+                  });
+                },
+              ),
+              DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: const InputDecoration(labelText: 'Category'),
-                items: categoryProvider.categories.map((category) {
+                items: categories.map((category) {
                   return DropdownMenuItem(
-                    value: category.name,
-                    child: Text(category.name),
+                    value: category,
+                    child: Text(category),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -81,19 +114,6 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                     return 'Please select a category';
                   }
                   return null;
-                },
-              ),
-              DropdownButtonFormField<String>(
-                value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: const [
-                  DropdownMenuItem(value: 'income', child: Text('Income')),
-                  DropdownMenuItem(value: 'expense', child: Text('Expense')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedType = value!;
-                  });
                 },
               ),
               TextFormField(

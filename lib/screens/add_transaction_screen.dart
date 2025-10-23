@@ -15,22 +15,38 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
-  String _selectedCategory = 'Food';
+  String? _selectedCategory;
   String _selectedType = 'expense';
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _categories = [
+  final List<String> _expenseCategories = [
     'Food',
     'Transport',
     'Bills',
     'Shopping',
-    'Salary',
     'Entertainment',
     'Others',
   ];
 
+  final List<String> _incomeCategories = [
+    'Salary',
+    'Business',
+    'Investment',
+    'Gift',
+    'Others',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = _expenseCategories[0];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final categories =
+        _selectedType == 'expense' ? _expenseCategories : _incomeCategories;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Add Transaction')),
       body: Padding(
@@ -51,8 +67,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
+                value: _selectedType,
+                items: ['expense', 'income'].map((String type) {
+                  return DropdownMenuItem<String>(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedType = newValue!;
+                    _selectedCategory = (newValue == 'expense'
+                        ? _expenseCategories
+                        : _incomeCategories)[0];
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Type'),
+              ),
+              DropdownButtonFormField<String>(
                 value: _selectedCategory,
-                items: _categories.map((String category) {
+                items: categories.map((String category) {
                   return DropdownMenuItem<String>(
                     value: category,
                     child: Text(category),
@@ -64,21 +98,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   });
                 },
                 decoration: const InputDecoration(labelText: 'Category'),
-              ),
-              DropdownButtonFormField<String>(
-                value: _selectedType,
-                items: ['income', 'expense'].map((String type) {
-                  return DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedType = newValue!;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Type'),
               ),
               TextFormField(
                 controller: _noteController,
@@ -114,7 +133,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     final transaction = Transaction()
                       ..id = const Uuid().v4()
                       ..amount = double.parse(_amountController.text)
-                      ..category = _selectedCategory
+                      ..category = _selectedCategory!
                       ..date = _selectedDate
                       ..note = _noteController.text
                       ..type = _selectedType;
