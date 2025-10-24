@@ -1,0 +1,3 @@
+- [x] Add Insights screen to the _screens list in main_screen.dart
+- [x] Add 'Insights' to the _titles list in main_screen.dart
+- [x] Add BottomNavigationBarItem for Insights in main_screen.dart

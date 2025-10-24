@@ -67,7 +67,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 items: ['expense', 'income'].map((String type) {
                   return DropdownMenuItem<String>(
                     value: type,
@@ -85,7 +85,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 decoration: const InputDecoration(labelText: 'Type'),
               ),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 items: categories.map((String category) {
                   return DropdownMenuItem<String>(
                     value: category,

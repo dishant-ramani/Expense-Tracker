@@ -80,7 +80,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: const [
                   DropdownMenuItem(value: 'expense', child: Text('Expense')),
@@ -96,7 +96,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: categories.map((category) {
                   return DropdownMenuItem(

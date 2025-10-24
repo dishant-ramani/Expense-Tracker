@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_list_screen.dart';
+import 'package:myapp/screens/insights_screen.dart';
 import 'package:myapp/widgets/main_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,11 +18,13 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const BudgetListScreen(),
+    const InsightsScreen(),
   ];
 
   final List<String> _titles = [
     'Home',
     'Budgets',
+    'Insights',
   ];
 
   void _onItemTapped(int index) {
@@ -55,6 +58,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.account_balance_wallet),
             label: 'Budgets',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.insights),
+            label: 'Insights',
           ),
         ],
         currentIndex: _selectedIndex,

@@ -48,7 +48,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 items: categories.map((Category category) {
                   return DropdownMenuItem<String>(
                     value: category.name,
@@ -69,7 +69,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 items: _types.map((String type) {
                   return DropdownMenuItem<String>(
                     value: type,
@@ -84,7 +84,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 decoration: const InputDecoration(labelText: 'Type'),
               ),
               DropdownButtonFormField<String>(
-                value: _selectedPeriod,
+                initialValue: _selectedPeriod,
                 items: _periods.map((String period) {
                   return DropdownMenuItem<String>(
                     value: period,
