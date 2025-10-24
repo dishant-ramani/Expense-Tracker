@@ -199,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           listen: false,
                                                         )
                                                         .deleteTransaction(
-                                                          transaction.id as Transaction,
+                                                          transaction.id,
                                                         );
                                                     Navigator.of(context).pop();
                                                     ScaffoldMessenger.of(
