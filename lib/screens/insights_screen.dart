@@ -1,37 +1,16 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-//import 'package:myapp/models/transaction.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:myapp/models/category.dart' as my_category;
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});
 
-  // Define the exact colors from the image for each category
-  static const Map<String, Color> _categoryColors = {
-    // Income
-    'Salary': Color(0xFF00FFFF), // Cyan
-    'Business': Color(0xFF8B4513), // SaddleBrown
-    'Investment': Color(0xFFDAA520), // GoldenRod
-    'Gift': Color(0xFFFA8072), // Salmon
-    'Others_Income': Color(0xFF9400D3), // DarkViolet
-    // Expense
-    'Food': Color(0xFF483D8B), // DarkSlateBlue
-    'Transport': Color(0xFFA0522D), // Sienna
-    'Bills': Color(0xFF556B2F), // DarkOliveGreen
-    'Shopping': Color(0xFFADFF2F), // GreenYellow
-    'Entertainment': Color(0xFF0000FF), // Blue
-    'Others_Expense': Color(0xFFFFA500), // Orange
-  };
-
-  static const Color _incomeColor = Color(0xFF228B22); // ForestGreen
-  static const Color _expenseColor = Color(0xFFDC143C); // Crimson
-
   @override
   Widget build(BuildContext context) {
-    final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -48,12 +27,12 @@ class InsightsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Consumer<TransactionProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
+      body: Consumer2<TransactionProvider, CategoryProvider>(
+        builder: (context, transactionProvider, categoryProvider, child) {
+          if (transactionProvider.isLoading || categoryProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (provider.transactions.isEmpty) {
+          if (transactionProvider.transactions.isEmpty) {
             return Center(
               child: Text(
                 'No transaction data to display.',
@@ -62,27 +41,41 @@ class InsightsScreen extends StatelessWidget {
             );
           }
 
-          // Calculate totals
-          final incomeTransactions = provider.transactions
-              .where((t) => t.type == 'income')
-              .toList();
-          final expenseTransactions = provider.transactions
-              .where((t) => t.type == 'expense')
-              .toList();
+          final transactions = transactionProvider.transactions;
+          final categories = categoryProvider.categories;
 
-          final totalIncome =
-              incomeTransactions.fold(0.0, (sum, t) => sum + t.amount);
-          final totalExpenses =
-              expenseTransactions.fold(0.0, (sum, t) => sum + t.amount);
+          final totalIncome = transactions
+              .where((t) => t.type == 'income')
+              .fold(0.0, (sum, t) => sum + t.amount);
+          final totalExpenses = transactions
+              .where((t) => t.type == 'expense')
+              .fold(0.0, (sum, t) => sum + t.amount);
           final grandTotal = totalIncome + totalExpenses;
 
-          // Prepare data for the inner chart
-          final Map<String, double> categoryTotals = {};
-          for (var t in provider.transactions) {
-            String key = t.categoryId;
-            categoryTotals.update(key, (sum) => sum + t.amount,
-                ifAbsent: () => t.amount);
+          final Map<String, double> incomeCategoryTotals = {};
+          final Map<String, double> expenseCategoryTotals = {};
+
+          for (var t in transactions) {
+            final category = categories.firstWhere((c) => c.id == t.categoryId, orElse: () => my_category.Category()..name = 'Others');
+            if (t.type == 'income') {
+              incomeCategoryTotals.update(category.name, (sum) => sum + t.amount, ifAbsent: () => t.amount);
+            } else {
+              expenseCategoryTotals.update(category.name, (sum) => sum + t.amount, ifAbsent: () => t.amount);
+            }
           }
+
+          final Map<String, Color> categoryColors = {
+            'Salary': const Color(0xFF00FFFF),
+            'Business': const Color(0xFF8B4513),
+            'Investment': const Color(0xFFDAA520),
+            'Gift': const Color(0xFFFA8072),
+            'Others': const Color(0xFF9400D3),
+            'Food': const Color(0xFF483D8B),
+            'Transport': const Color(0xFFA0522D),
+            'Bills': const Color(0xFF556B2F),
+            'Shopping': const Color(0xFFADFF2F),
+            'Entertainment': const Color(0xFF0000FF),
+          };
 
           return SingleChildScrollView(
             child: Padding(
@@ -95,52 +88,34 @@ class InsightsScreen extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Outer Ring: Income vs Expense
                         PieChart(
                           PieChartData(
-                            sections: _buildOuterRing(
-                                totalIncome, totalExpenses, grandTotal),
+                            sections: _buildOuterRing(totalIncome, totalExpenses, grandTotal),
+                            startDegreeOffset: -90,
+                            borderData: FlBorderData(show: false),
+                            sectionsSpace: 4,
+                            centerSpaceRadius: 120,
+                          ),
+                        ),
+                        PieChart(
+                          PieChartData(
+                            sections: _buildInnerPie(incomeCategoryTotals, expenseCategoryTotals, grandTotal, categoryColors),
                             startDegreeOffset: -90,
                             borderData: FlBorderData(show: false),
                             sectionsSpace: 2,
-                            centerSpaceRadius: 100,
-                          ),
-                        ),
-                        // Inner Pie: Category Breakdown
-                        PieChart(
-                          PieChartData(
-                            sections: _buildInnerPie(categoryTotals, grandTotal, transactionProvider),
-                            startDegreeOffset: -90,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 1,
-                            centerSpaceRadius: 0,
+                            centerSpaceRadius: 60,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // Legends
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLegend(
-                        'INCOME',
-                        _incomeColor,
-                        _categoryColors.entries
-                            .where((e) => incomeTransactions
-                                .any((t) => t.categoryId == e.key))
-                            .toList(),
-                      ),
-                      _buildLegend(
-                        'EXPENSE',
-                        _expenseColor,
-                        _categoryColors.entries
-                            .where((e) => expenseTransactions
-                                .any((t) => t.categoryId == e.key))
-                            .toList(),
-                      ),
+                      _buildLegend('INCOME', const Color(0xFF2E8B57), incomeCategoryTotals, categoryColors, true),
+                      _buildLegend('EXPENSE', const Color(0xFFD22B2B), expenseCategoryTotals, categoryColors, false),
                     ],
                   )
                 ],
@@ -152,8 +127,7 @@ class InsightsScreen extends StatelessWidget {
     );
   }
 
-  List<PieChartSectionData> _buildOuterRing(
-      double income, double expenses, double total) {
+  List<PieChartSectionData> _buildOuterRing(double income, double expenses, double total) {
     if (total == 0) return [];
     final incomePercentage = income / total;
     final expensePercentage = expenses / total;
@@ -161,58 +135,66 @@ class InsightsScreen extends StatelessWidget {
     return [
       PieChartSectionData(
         value: income,
-        color: _incomeColor,
-        radius: 70,
+        color: const Color(0xFF2E8B57), // SeaGreen
+        radius: 50,
         showTitle: true,
         title: '${(incomePercentage * 100).toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        titlePositionPercentageOffset: 0.6,
+        titleStyle: GoogleFonts.lora(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
       ),
       PieChartSectionData(
         value: expenses,
-        color: _expenseColor,
-        radius: 70,
+        color: const Color(0xFFD22B2B), // Firebrick
+        radius: 50,
         showTitle: true,
         title: '${(expensePercentage * 100).toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        titlePositionPercentageOffset: 0.6,
+        titleStyle: GoogleFonts.lora(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     ];
   }
 
-  List<PieChartSectionData> _buildInnerPie(
-      Map<String, double> categoryTotals, double grandTotal, TransactionProvider provider) {
+  List<PieChartSectionData> _buildInnerPie(Map<String, double> incomeTotals, Map<String, double> expenseTotals, double grandTotal, Map<String, Color> colors) {
     if (grandTotal == 0) return [];
-    return categoryTotals.entries.map((entry) {
-      final category = entry.key;
-      final amount = entry.value;
-      final percentage = (amount / grandTotal) * 100;
-      final transactionType = provider.transactions.firstWhere((t) => t.categoryId == category).type;
-      final colorKey = _categoryColors.containsKey(category)
-          ? category
-          : (transactionType == 'income'
-              ? 'Others_Income'
-              : 'Others_Expense');
 
-      return PieChartSectionData(
-        value: amount,
-        color: _categoryColors[colorKey],
-        radius: 100,
-        showTitle: true,
-        title: '${percentage.toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+    List<PieChartSectionData> sections = [];
+
+    final sortedIncomeKeys = incomeTotals.keys.toList();
+    final sortedExpenseKeys = expenseTotals.keys.toList();
+
+    for (var category in sortedIncomeKeys) {
+      final amount = incomeTotals[category]!;
+      final percentage = (amount / grandTotal) * 100;
+      sections.add(
+        PieChartSectionData(
+          value: amount,
+          color: colors[category] ?? Colors.grey,
+          radius: 60,
+          showTitle: true,
+          title: '${percentage.toStringAsFixed(0)}%',
+          titleStyle: GoogleFonts.lora(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       );
-    }).toList();
+    }
+
+    for (var category in sortedExpenseKeys) {
+      final amount = expenseTotals[category]!;
+      final percentage = (amount / grandTotal) * 100;
+      sections.add(
+        PieChartSectionData(
+          value: amount,
+          color: colors[category] ?? Colors.grey,
+          radius: 60,
+          showTitle: true,
+          title: '${percentage.toStringAsFixed(0)}%',
+          titleStyle: GoogleFonts.lora(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      );
+    }
+
+    return sections;
   }
 
-  Widget _buildLegend(String title, Color titleColor,
-      List<MapEntry<String, Color>> legendItems) {
+  Widget _buildLegend(String title, Color titleColor, Map<String, double> categoryTotals, Map<String, Color> colors, bool isIncome) {
+    final defaultColor = isIncome ? const Color(0xFF9400D3) : const Color(0xFFFFA500);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -222,28 +204,29 @@ class InsightsScreen extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: titleColor,
+            letterSpacing: 1.2,
           ),
         ),
         const SizedBox(height: 12),
-        ...legendItems.map(
-          (item) => Padding(
+        ...categoryTotals.keys.map((category) {
+          return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Row(
               children: [
                 Container(
                   width: 16,
                   height: 16,
-                  color: item.value,
+                  color: colors[category] ?? defaultColor,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  item.key.replaceAll('_Income', '').replaceAll('_Expense', ''),
+                  category,
                   style: GoogleFonts.lora(fontSize: 16),
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        }).toList(),
       ],
     );
   }
