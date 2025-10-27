@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/providers/budget_provider.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:myapp/screens/add_budget_screen.dart';
 import 'package:provider/provider.dart';
@@ -22,8 +23,8 @@ class BudgetScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer2<BudgetProvider, TransactionProvider>(
-        builder: (context, budgetProvider, transactionProvider, child) {
+      body: Consumer3<BudgetProvider, TransactionProvider, CategoryProvider>(
+        builder: (context, budgetProvider, transactionProvider, categoryProvider, child) {
           if (budgetProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -37,8 +38,9 @@ class BudgetScreen extends StatelessWidget {
             itemCount: budgetProvider.budgets.length,
             itemBuilder: (context, index) {
               final budget = budgetProvider.budgets[index];
+              final categoryId = categoryProvider.categories.firstWhere((c) => c.name == budget.category).id;
               final spent = transactionProvider.transactions
-                  .where((t) => t.type == 'expense' && t.categoryId == budget.category)
+                  .where((t) => t.type == 'expense' && t.categoryId == categoryId)
                   .fold(0.0, (sum, t) => sum + t.amount);
               final remaining = budget.amount - spent;
               final isOverspent = remaining < 0;
