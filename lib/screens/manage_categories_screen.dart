@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-//import 'package:flutter_iconpicker/flutter_iconpicker.dart';
-import 'package:flutter_iconpicker/flutter_iconpicker.dart' as FlutterIconPicker;
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:myapp/models/category.dart' as my_category;
 import 'package:myapp/providers/category_provider.dart';
 import 'package:provider/provider.dart';
@@ -60,8 +59,8 @@ class ManageCategoriesScreen extends StatelessWidget {
   void _showAddCategoryDialog(BuildContext context, {my_category.Category? category}) {
     final isEditing = category != null;
     final nameController = TextEditingController(text: category?.name ?? '');
-    IconData? selectedIcon = isEditing ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons') : null;
-    Color? selectedColor = isEditing ? Color(category.colorValue) : null;
+    IconData? selectedIcon = isEditing ? IconData(category!.iconCodePoint, fontFamily: 'MaterialIcons') : null;
+    Color? selectedColor = isEditing ? Color(category!.colorValue) : null;
     String selectedType = category?.type ?? 'expense';
 
     showDialog(
@@ -100,7 +99,7 @@ class ManageCategoriesScreen extends StatelessWidget {
                       IconButton(
                         icon: Icon(selectedIcon ?? Icons.add_reaction),
                         onPressed: () async {
-                          final IconData? icon = (await FlutterIconPicker.showIconPicker(context)) as IconData?;
+                          final IconData? icon = (await showIconPicker(context)) as IconData?;
                           if (icon != null) {
                             setState(() {
                               selectedIcon = icon;
