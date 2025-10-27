@@ -136,7 +136,7 @@ class InsightsScreen extends StatelessWidget {
       PieChartSectionData(
         value: income,
         color: const Color(0xFF2E8B57), // SeaGreen
-        radius: 50,
+        radius: 70,
         showTitle: true,
         title: '${(incomePercentage * 100).toStringAsFixed(0)}%',
         titleStyle: GoogleFonts.lora(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
@@ -144,7 +144,7 @@ class InsightsScreen extends StatelessWidget {
       PieChartSectionData(
         value: expenses,
         color: const Color(0xFFD22B2B), // Firebrick
-        radius: 50,
+        radius: 70,
         showTitle: true,
         title: '${(expensePercentage * 100).toStringAsFixed(0)}%',
         titleStyle: GoogleFonts.lora(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
