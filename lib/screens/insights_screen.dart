@@ -70,146 +70,33 @@ class InsightsScreen extends StatelessWidget {
               .where((t) => t.type == 'expense')
               .toList();
 
-          final totalIncome =
-              incomeTransactions.fold(0.0, (sum, t) => sum + t.amount);
-          final totalExpenses =
-              expenseTransactions.fold(0.0, (sum, t) => sum + t.amount);
-          final grandTotal = totalIncome + totalExpenses;
-
-          // Prepare data for the inner chart
-          final Map<String, double> categoryTotals = {};
-          for (var t in provider.transactions) {
-            String key = t.category;
-            categoryTotals.update(key, (sum) => sum + t.amount,
-                ifAbsent: () => t.amount);
+          if (expenseTransactions.isEmpty) {
+            return const Center(child: Text('No expense data for insights.'));
           }
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 350,
-                    width: 350,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Outer Ring: Income vs Expense
-                        PieChart(
-                          PieChartData(
-                            sections: _buildOuterRing(
-                                totalIncome, totalExpenses, grandTotal),
-                            startDegreeOffset: -90,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 100,
-                          ),
-                        ),
-                        // Inner Pie: Category Breakdown
-                        PieChart(
-                          PieChartData(
-                            sections: _buildInnerPie(categoryTotals, grandTotal, transactionProvider),
-                            startDegreeOffset: -90,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 1,
-                            centerSpaceRadius: 0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // Legends
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLegend(
-                        'INCOME',
-                        _incomeColor,
-                        _categoryColors.entries
-                            .where((e) => incomeTransactions
-                                .any((t) => t.category == e.key))
-                            .toList(),
-                      ),
-                      _buildLegend(
-                        'EXPENSE',
-                        _expenseColor,
-                        _categoryColors.entries
-                            .where((e) => expenseTransactions
-                                .any((t) => t.category == e.key))
-                            .toList(),
-                      ),
-                    ],
-                  )
-                ],
+          Map<String, double> dataMap = {};
+          for (var transaction in expenseTransactions) {
+            dataMap.update(
+              transaction.category,
+              (value) => value + transaction.amount,
+              ifAbsent: () => transaction.amount,
+            );
+          }
+
+          List<PieChartSectionData> pieChartSections = dataMap.entries.map((
+            entry,
+          ) {
+            return PieChartSectionData(
+              value: entry.value,
+              title: entry.key,
+              radius: 100,
+              titleStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  List<PieChartSectionData> _buildOuterRing(
-      double income, double expenses, double total) {
-    if (total == 0) return [];
-    final incomePercentage = income / total;
-    final expensePercentage = expenses / total;
-
-    return [
-      PieChartSectionData(
-        value: income,
-        color: _incomeColor,
-        radius: 40,
-        showTitle: true,
-        title: '${(incomePercentage * 100).toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        titlePositionPercentageOffset: 0.6,
-      ),
-      PieChartSectionData(
-        value: expenses,
-        color: _expenseColor,
-        radius: 40,
-        showTitle: true,
-        title: '${(expensePercentage * 100).toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        titlePositionPercentageOffset: 0.6,
-      ),
-    ];
-  }
-
-  List<PieChartSectionData> _buildInnerPie(
-      Map<String, double> categoryTotals, double grandTotal, TransactionProvider provider) {
-    if (grandTotal == 0) return [];
-    return categoryTotals.entries.map((entry) {
-      final category = entry.key;
-      final amount = entry.value;
-      final percentage = (amount / grandTotal) * 100;
-      final transactionType = provider.transactions.firstWhere((t) => t.category == category).type;
-      final colorKey = _categoryColors.containsKey(category)
-          ? category
-          : (transactionType == 'income'
-              ? 'Others_Income'
-              : 'Others_Expense');
-
-      return PieChartSectionData(
-        value: amount,
-        color: _categoryColors[colorKey],
-        radius: 100,
-        showTitle: true,
-        title: '${percentage.toStringAsFixed(0)}%',
-        titleStyle: GoogleFonts.lora(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      );
-    }).toList();
-  }
+            );
+          }).toList();
 
   Widget _buildLegend(String title, Color titleColor,
       List<MapEntry<String, Color>> legendItems) {
