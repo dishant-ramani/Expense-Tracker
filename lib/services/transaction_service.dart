@@ -24,4 +24,9 @@ class TransactionService {
     final box = await _box;
     return box.values.toList();
   }
+
+  Future<void> clearAllTransactions() async {
+    final box = await _box;
+    await box.clear();
+  }
 }

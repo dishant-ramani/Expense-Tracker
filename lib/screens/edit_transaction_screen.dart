@@ -48,7 +48,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     _dateController = TextEditingController(
       text: DateFormat.yMd().format(widget.transaction.date),
     );
-    _selectedCategory = widget.transaction.category;
+    _selectedCategory = widget.transaction.categoryId;
     _selectedType = widget.transaction.type;
   }
 
@@ -148,7 +148,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                     updatedTransaction.amount = double.parse(
                       _amountController.text,
                     );
-                    updatedTransaction.category = _selectedCategory;
+                    updatedTransaction.categoryId = _selectedCategory;
                     updatedTransaction.note = _noteController.text;
                     updatedTransaction.date = DateFormat.yMd().parse(
                       _dateController.text,

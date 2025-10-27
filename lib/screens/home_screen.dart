@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _filteredTransactions = provider.transactions.where((transaction) {
         return (transaction.note?.toLowerCase() ?? '').contains(query) ||
-            transaction.category.toLowerCase().contains(query);
+            transaction.categoryId.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             verticalOffset: 50.0,
                             child: FadeInAnimation(
                               child: ListTile(
-                                title: Text(transaction.category),
+                                title: Text(transaction.categoryId),
                                 subtitle: Text(transaction.note ?? ''),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,

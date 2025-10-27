@@ -13,11 +13,13 @@ class CategoryService {
   }
 
   Future<void> updateCategory(Category category) async {
-    await category.save();
+    final box = await _box;
+    await box.put(category.id, category);
   }
 
   Future<void> deleteCategory(Category category) async {
-    await category.delete();
+    final box = await _box;
+    await box.delete(category.id);
   }
 
   Future<List<Category>> getCategories() async {

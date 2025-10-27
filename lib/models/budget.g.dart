@@ -16,28 +16,26 @@ class BudgetAdapter extends TypeAdapter<Budget> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Budget()
-      ..id = fields[0] as String
-      ..amount = fields[1] as double
-      ..period = fields[2] as String
-      ..category = fields[3] as String
-      ..type = fields[4] as String;
+    return Budget(
+      id: fields[0] as String,
+      category: fields[1] as String,
+      amount: fields[2] as double,
+      iconCodePoint: fields[3] as int,
+    );
   }
 
   @override
   void write(BinaryWriter writer, Budget obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.amount)
-      ..writeByte(2)
-      ..write(obj.period)
-      ..writeByte(3)
       ..write(obj.category)
-      ..writeByte(4)
-      ..write(obj.type);
+      ..writeByte(2)
+      ..write(obj.amount)
+      ..writeByte(3)
+      ..write(obj.iconCodePoint);
   }
 
   @override

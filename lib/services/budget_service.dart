@@ -15,10 +15,10 @@ class BudgetService {
   }
 
   Future<void> updateBudget(Budget budget) async {
-    await budget.save();
+    await budgetsBox.put(budget.id, budget);
   }
 
-  Future<void> deleteBudget(Budget budget) async {
-    await budget.delete();
+  Future<void> deleteBudget(String budgetId) async {
+    await budgetsBox.delete(budgetId);
   }
 }

@@ -11,7 +11,7 @@ class Transaction extends HiveObject {
   late String type;
 
   @HiveField(2)
-  late String category;
+  late String categoryId;
 
   @HiveField(3)
   late double amount;

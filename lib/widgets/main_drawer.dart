@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/home_screen.dart';
-import 'package:myapp/screens/budget_list_screen.dart';
+import 'package:myapp/screens/budget_screen.dart';
 import 'package:myapp/screens/settings_screen.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -36,7 +36,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const BudgetListScreen(),
+                  builder: (context) => const BudgetScreen(),
                 ),
               );
             },

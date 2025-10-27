@@ -24,6 +24,7 @@ This document outlines the architecture, features, and design of the personal fi
 ### Category Management
 
 - **Separate Categories for Income and Expense:** The application now enforces separate category lists for income and expense transactions. When adding or editing a transaction, the category dropdown menu dynamically updates to show only the relevant categories based on the selected transaction type (income or expense).
+- **Manage Categories Screen:** A new screen allows users to add, edit, and delete categories. This provides a centralized place for users to manage their spending and income categories.
 
 ### Budget Management
 
@@ -60,6 +61,10 @@ This document outlines the architecture, features, and design of the personal fi
 - **Hive:** The app uses the `hive` package for local data storage, ensuring that all data is saved on the device.
 - **shared_preferences:** The app uses the `shared_preferences` package to save and retrieve the user's theme preference.
 
-## Final Touches
+## Current Task: Refactor Category Management
 
-- **Code Formatting:** The entire codebase has been formatted using `dart format .` to ensure consistency and readability.
+- **`Category` Model:** The `Category` model now includes `iconCodePoint` and `colorValue` to allow for more visual customization.
+- **`CategoryProvider` and `CategoryService`:** These have been introduced to manage the lifecycle of `Category` objects, including adding, updating, and deleting them.
+- **`ManageCategoriesScreen`:** This new screen provides a UI for users to manage their categories.
+- **`AddTransactionScreen`:** This screen now uses the `CategoryProvider` to populate the category dropdown, ensuring that users can select from the categories they have created.
+- **`Transaction` Model:** The `Transaction` model has been updated to store a `categoryId` instead of a category name, which is a more robust way to link transactions to categories.

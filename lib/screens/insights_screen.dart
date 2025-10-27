@@ -2,7 +2,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:myapp/models/transaction.dart';
+//import 'package:myapp/models/transaction.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -79,7 +79,7 @@ class InsightsScreen extends StatelessWidget {
           // Prepare data for the inner chart
           final Map<String, double> categoryTotals = {};
           for (var t in provider.transactions) {
-            String key = t.category;
+            String key = t.categoryId;
             categoryTotals.update(key, (sum) => sum + t.amount,
                 ifAbsent: () => t.amount);
           }
@@ -130,7 +130,7 @@ class InsightsScreen extends StatelessWidget {
                         _incomeColor,
                         _categoryColors.entries
                             .where((e) => incomeTransactions
-                                .any((t) => t.category == e.key))
+                                .any((t) => t.categoryId == e.key))
                             .toList(),
                       ),
                       _buildLegend(
@@ -138,7 +138,7 @@ class InsightsScreen extends StatelessWidget {
                         _expenseColor,
                         _categoryColors.entries
                             .where((e) => expenseTransactions
-                                .any((t) => t.category == e.key))
+                                .any((t) => t.categoryId == e.key))
                             .toList(),
                       ),
                     ],
@@ -189,7 +189,7 @@ class InsightsScreen extends StatelessWidget {
       final category = entry.key;
       final amount = entry.value;
       final percentage = (amount / grandTotal) * 100;
-      final transactionType = provider.transactions.firstWhere((t) => t.category == category).type;
+      final transactionType = provider.transactions.firstWhere((t) => t.categoryId == category).type;
       final colorKey = _categoryColors.containsKey(category)
           ? category
           : (transactionType == 'income'

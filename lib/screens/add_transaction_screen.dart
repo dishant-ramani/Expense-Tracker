@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/category.dart' as my_category;
 import 'package:myapp/models/transaction.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -15,37 +17,28 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
-  String? _selectedCategory;
+  my_category.Category? _selectedCategory;
   String _selectedType = 'expense';
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _expenseCategories = [
-    'Food',
-    'Transport',
-    'Bills',
-    'Shopping',
-    'Entertainment',
-    'Others',
-  ];
-
-  final List<String> _incomeCategories = [
-    'Salary',
-    'Business',
-    'Investment',
-    'Gift',
-    'Others',
-  ];
-
   @override
-  void initState() {
-    super.initState();
-    _selectedCategory = _expenseCategories[0];
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+    final categories = categoryProvider.categories
+        .where((c) => c.type == _selectedType)
+        .toList();
+    if (categories.isNotEmpty) {
+      _selectedCategory = categories.first;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final categories =
-        _selectedType == 'expense' ? _expenseCategories : _incomeCategories;
+    final categoryProvider = Provider.of<CategoryProvider>(context);
+    final categories = categoryProvider.categories
+        .where((c) => c.type == _selectedType)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Add Transaction')),
@@ -67,7 +60,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 },
               ),
               DropdownButtonFormField<String>(
-                initialValue: _selectedType,
+                value: _selectedType,
                 items: ['expense', 'income'].map((String type) {
                   return DropdownMenuItem<String>(
                     value: type,
@@ -77,28 +70,34 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 onChanged: (newValue) {
                   setState(() {
                     _selectedType = newValue!;
-                    _selectedCategory = (newValue == 'expense'
-                        ? _expenseCategories
-                        : _incomeCategories)[0];
+                    final updatedCategories = categoryProvider.categories
+                        .where((c) => c.type == _selectedType)
+                        .toList();
+                    _selectedCategory = updatedCategories.isNotEmpty
+                        ? updatedCategories.first
+                        : null;
                   });
                 },
                 decoration: const InputDecoration(labelText: 'Type'),
               ),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                items: categories.map((String category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedCategory = newValue!;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Category'),
-              ),
+              if (categories.isNotEmpty)
+                DropdownButtonFormField<my_category.Category>(
+                  value: _selectedCategory,
+                  items: categories.map((my_category.Category category) {
+                    return DropdownMenuItem<my_category.Category>(
+                      value: category,
+                      child: Text(category.name),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedCategory = newValue!;
+                    });
+                  },
+                  decoration: const InputDecoration(labelText: 'Category'),
+                )
+              else
+                const Text('Please add categories for this type in settings'),
               TextFormField(
                 controller: _noteController,
                 decoration: const InputDecoration(labelText: 'Note'),
@@ -129,19 +128,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState!.validate() &&
+                      _selectedCategory != null) {
                     final transaction = Transaction()
                       ..id = const Uuid().v4()
                       ..amount = double.parse(_amountController.text)
-                      ..category = _selectedCategory!
+                      ..categoryId = _selectedCategory!.id
                       ..date = _selectedDate
                       ..note = _noteController.text
                       ..type = _selectedType;
 
-                    Provider.of<TransactionProvider>(
-                      context,
-                      listen: false,
-                    ).addTransaction(transaction);
+                    Provider.of<TransactionProvider>(context, listen: false)
+                        .addTransaction(transaction);
 
                     Navigator.pop(context);
                   }

@@ -1,21 +1,28 @@
 import 'package:hive/hive.dart';
+import 'package:flutter/material.dart';
 
 part 'budget.g.dart';
 
 @HiveType(typeId: 2)
-class Budget extends HiveObject {
+class Budget {
   @HiveField(0)
-  late String id;
+  final String id;
 
   @HiveField(1)
-  late double amount;
+  final String category;
 
   @HiveField(2)
-  late String period;
+  final double amount;
 
   @HiveField(3)
-  late String category;
+  final int iconCodePoint;
 
-  @HiveField(4)
-  late String type;
+  Budget({
+    required this.id,
+    required this.category,
+    required this.amount,
+    required this.iconCodePoint,
+  });
+
+  IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 }
