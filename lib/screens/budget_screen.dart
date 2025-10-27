@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/providers/budget_provider.dart';
+import 'package:myapp/providers/transaction_provider.dart';
 import 'package:myapp/screens/add_budget_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -21,22 +22,24 @@ class BudgetScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<BudgetProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
+      body: Consumer2<BudgetProvider, TransactionProvider>(
+        builder: (context, budgetProvider, transactionProvider, child) {
+          if (budgetProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (provider.budgets.isEmpty) {
+          if (budgetProvider.budgets.isEmpty) {
             return const Center(child: Text('No budgets added yet.'));
           }
 
           return ListView.builder(
             padding: const EdgeInsets.all(8.0),
-            itemCount: provider.budgets.length,
+            itemCount: budgetProvider.budgets.length,
             itemBuilder: (context, index) {
-              final budget = provider.budgets[index];
-              final spent = provider.getSpentAmount(budget.category);
+              final budget = budgetProvider.budgets[index];
+              final spent = transactionProvider.transactions
+                  .where((t) => t.type == 'expense' && t.categoryId == budget.category)
+                  .fold(0.0, (sum, t) => sum + t.amount);
               final remaining = budget.amount - spent;
               final isOverspent = remaining < 0;
 

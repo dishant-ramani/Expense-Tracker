@@ -16,8 +16,7 @@ class TransactionProvider with ChangeNotifier {
 
   Future<void> loadTransactions() async {
     _isLoading = true;
-    // Notify listeners at the beginning of the load to show a loading indicator.
-    notifyListeners(); 
+    notifyListeners();
     try {
       _transactions = await _transactionService.getTransactions();
     } catch (e) {
@@ -25,7 +24,6 @@ class TransactionProvider with ChangeNotifier {
       _transactions = [];
     } finally {
       _isLoading = false;
-      // Notify listeners at the end to update the UI with data or an empty state.
       notifyListeners();
     }
   }
@@ -33,25 +31,16 @@ class TransactionProvider with ChangeNotifier {
   Future<void> addTransaction(Transaction transaction) async {
     try {
       await _transactionService.addTransaction(transaction);
-      // Optimistic add: update the UI immediately.
-      _transactions.add(transaction);
-      notifyListeners();
+      await loadTransactions();
     } catch (e) {
       debugPrint("Error adding transaction: $e");
-      // Optional: If the DB write fails, you could remove the transaction 
-      // and notify the user.
     }
   }
 
   Future<void> updateTransaction(Transaction transaction) async {
     try {
       await _transactionService.updateTransaction(transaction);
-      // Optimistic update: find and replace the transaction in the list.
-      final index = _transactions.indexWhere((t) => t.id == transaction.id);
-      if (index != -1) {
-        _transactions[index] = transaction;
-        notifyListeners();
-      }
+      await loadTransactions();
     } catch (e) {
       debugPrint("Error updating transaction: $e");
     }
@@ -59,12 +48,9 @@ class TransactionProvider with ChangeNotifier {
 
   Future<void> deleteTransaction(String transactionId) async {
     try {
-      // Find the transaction object to delete from the service layer.
       final transactionToDelete = _transactions.firstWhere((t) => t.id == transactionId);
       await _transactionService.deleteTransaction(transactionToDelete);
-      // Optimistic delete: remove the transaction from the list.
-      _transactions.removeWhere((t) => t.id == transactionId);
-      notifyListeners();
+      await loadTransactions();
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
     }
