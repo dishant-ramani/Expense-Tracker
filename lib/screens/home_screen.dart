@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:myapp/models/transaction.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:myapp/screens/add_transaction_screen.dart';
 import 'package:myapp/screens/edit_transaction_screen.dart';
@@ -24,12 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _filterTransactions() {
-    final provider = Provider.of<TransactionProvider>(context, listen: false);
+    final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredTransactions = provider.transactions.where((transaction) {
+      _filteredTransactions = transactionProvider.transactions.where((transaction) {
+        final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId);
         return (transaction.note?.toLowerCase() ?? '').contains(query) ||
-            transaction.categoryId.toLowerCase().contains(query);
+            category.name.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -42,16 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<TransactionProvider>(context);
-    final transactions = provider.transactions;
+    final transactionProvider = Provider.of<TransactionProvider>(context);
+    final categoryProvider = Provider.of<CategoryProvider>(context);
+    final transactions = transactionProvider.transactions;
     if (_searchController.text.isEmpty) {
       _filteredTransactions = transactions;
     }
 
-    double totalIncome = provider.transactions
+    double totalIncome = transactionProvider.transactions
         .where((t) => t.type == 'income')
         .fold(0, (sum, t) => sum + t.amount);
-    double totalExpenses = provider.transactions
+    double totalExpenses = transactionProvider.transactions
         .where((t) => t.type == 'expense')
         .fold(0, (sum, t) => sum + t.amount);
     double balance = totalIncome - totalExpenses;
@@ -135,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: _filteredTransactions.length,
                       itemBuilder: (context, index) {
                         final transaction = _filteredTransactions[index];
+                        final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId);
                         return AnimationConfiguration.staggeredList(
                           position: index,
                           duration: const Duration(milliseconds: 375),
@@ -142,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             verticalOffset: 50.0,
                             child: FadeInAnimation(
                               child: ListTile(
-                                title: Text(transaction.categoryId),
+                                title: Text(category.name),
                                 subtitle: Text(transaction.note ?? ''),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -193,8 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   child: const Text('Delete'),
                                                   onPressed: () {
                                                     Provider.of<
-                                                          TransactionProvider
-                                                        >(
+                                                          TransactionProvider>(
                                                           context,
                                                           listen: false,
                                                         )
