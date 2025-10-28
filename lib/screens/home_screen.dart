@@ -28,19 +28,6 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Light neutral background
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
-        centerTitle: true,
-        title: Text(
-          'Home',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -49,8 +36,8 @@ class HomeScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                    child:
-                        _buildSummaryCard('Total Income', totalIncome, Colors.green)),
+                    child: _buildSummaryCard(
+                        'Total Income', totalIncome, Colors.green)),
                 const SizedBox(width: 8),
                 Expanded(
                     child: _buildSummaryCard(

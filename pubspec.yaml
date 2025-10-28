@@ -45,6 +45,7 @@ dependencies:
   google_fonts: ^6.3.2
   flutter_colorpicker: ^1.1.0
   flutter_iconpicker: ^4.0.3
+  bottom_navy_bar: ^6.1.0
 
 dev_dependencies:
   flutter_test:

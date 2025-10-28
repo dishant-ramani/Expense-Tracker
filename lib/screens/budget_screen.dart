@@ -12,17 +12,6 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Budgets', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // Implement filter functionality
-            },
-          ),
-        ],
-      ),
       body: Consumer3<BudgetProvider, TransactionProvider, CategoryProvider>(
         builder: (context, budgetProvider, transactionProvider, categoryProvider, child) {
           if (budgetProvider.isLoading) {

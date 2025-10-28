@@ -1,3 +1,4 @@
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_screen.dart';
@@ -52,20 +53,14 @@ class _MainScreenState extends State<MainScreen> {
         },
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Budgets',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.insights),
-            label: 'Insights',
-          ),
+      bottomNavigationBar: BottomNavyBar(
+        selectedIndex: _selectedIndex,
+        onItemSelected: _onItemTapped,
+        items: <BottomNavyBarItem>[
+          BottomNavyBarItem(icon: const Icon(Icons.home), title: const Text('Home')),
+          BottomNavyBarItem(icon: const Icon(Icons.account_balance_wallet), title: const Text('Budgets')),
+          BottomNavyBarItem(icon: const Icon(Icons.insights), title: const Text('Insights')),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
