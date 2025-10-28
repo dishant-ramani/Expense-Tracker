@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                 (cat) => cat.id == transaction.categoryId,
                 orElse: () => categoryProvider.categories.first,
               );
-              return _buildCategoryTile(transaction, category);
+              return _buildCategoryTile(context, transaction, category);
             }).toList(),
           ],
         ),
@@ -156,7 +156,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTile(dynamic transaction, dynamic category) {
+  Widget _buildCategoryTile(BuildContext context, dynamic transaction, dynamic category) {
     final isIncome = transaction.type == 'income';
     final color = isIncome ? Colors.green : Colors.red;
 
@@ -221,6 +221,30 @@ class HomeScreen extends StatelessWidget {
               ),
               overflow: TextOverflow.ellipsis,
             ),
+          ),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'edit') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddTransactionScreen(transaction: transaction),
+                  ),
+                );
+              } else if (value == 'delete') {
+                Provider.of<TransactionProvider>(context, listen: false).deleteTransaction(transaction.id);
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'edit',
+                child: Text('Edit'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Text('Delete'),
+              ),
+            ],
           ),
         ],
       ),

@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final Transaction? transaction;
+
+  const AddTransactionScreen({super.key, this.transaction});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -15,20 +17,41 @@ class AddTransactionScreen extends StatefulWidget {
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
+  late TextEditingController _amountController;
+  late TextEditingController _noteController;
   my_category.Category? _selectedCategory;
-  String _selectedType = 'expense';
-  DateTime _selectedDate = DateTime.now();
+  late String _selectedType;
+  late DateTime _selectedDate;
+  bool get _isEditing => widget.transaction != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      final transaction = widget.transaction!;
+      _amountController = TextEditingController(text: transaction.amount.toString());
+      _noteController = TextEditingController(text: transaction.note);
+      _selectedType = transaction.type;
+      _selectedDate = transaction.date;
+    } else {
+      _amountController = TextEditingController();
+      _noteController = TextEditingController();
+      _selectedType = 'expense';
+      _selectedDate = DateTime.now();
+    }
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    final categories =
-        categoryProvider.categories.where((c) => c.type == _selectedType).toList();
-    if (categories.isNotEmpty) {
-      _selectedCategory = categories.first;
+    if (_isEditing) {
+      _selectedCategory = categoryProvider.categories.firstWhere((c) => c.id == widget.transaction!.categoryId);
+    } else {
+      final categories = categoryProvider.categories.where((c) => c.type == _selectedType).toList();
+      if (categories.isNotEmpty) {
+        _selectedCategory = categories.first;
+      }
     }
   }
 
@@ -56,9 +79,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Add Transaction',
-                      style: TextStyle(
+                    Text(
+                      _isEditing ? 'Edit Transaction' : 'Add Transaction',
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -256,9 +279,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       elevation: 3,
                     ),
                     onPressed: _saveTransaction,
-                    child: const Text(
-                      'Save Transaction',
-                      style: TextStyle(
+                    child: Text(
+                      _isEditing ? 'Save Changes' : 'Save Transaction',
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -292,16 +315,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   // 💾 Save transaction
   void _saveTransaction() {
     if (_formKey.currentState!.validate() && _selectedCategory != null) {
-      final transaction = Transaction()
-        ..id = const Uuid().v4()
-        ..amount = double.parse(_amountController.text)
-        ..categoryId = _selectedCategory!.id
-        ..date = _selectedDate
-        ..note = _noteController.text
-        ..type = _selectedType;
+      final amount = double.parse(_amountController.text);
+      final note = _noteController.text;
 
-      Provider.of<TransactionProvider>(context, listen: false)
-          .addTransaction(transaction);
+      if (_isEditing) {
+        final updatedTransaction = Transaction()
+          ..id = widget.transaction!.id
+          ..amount = amount
+          ..categoryId = _selectedCategory!.id
+          ..date = _selectedDate
+          ..note = note
+          ..type = _selectedType;
+
+        Provider.of<TransactionProvider>(context, listen: false).updateTransaction(updatedTransaction);
+      } else {
+        final newTransaction = Transaction()
+          ..id = const Uuid().v4()
+          ..amount = amount
+          ..categoryId = _selectedCategory!.id
+          ..date = _selectedDate
+          ..note = note
+          ..type = _selectedType;
+
+        Provider.of<TransactionProvider>(context, listen: false).addTransaction(newTransaction);
+      }
 
       Navigator.pop(context);
     }

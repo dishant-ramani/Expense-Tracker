@@ -13,7 +13,8 @@ class TransactionService {
   }
 
   Future<void> updateTransaction(Transaction transaction) async {
-    await transaction.save();
+    final box = await _box;
+    await box.put(transaction.id, transaction);
   }
 
   Future<void> deleteTransaction(Transaction transaction) async {
