@@ -102,7 +102,16 @@ class BudgetScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+
+                          // 👇 Stylish Popup Menu (same as TransactionScreen)
                           PopupMenuButton<String>(
+                            elevation: 12,
+                            color: Colors.white.withOpacity(0.95),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            offset: const Offset(0, 40),
+                            shadowColor: Colors.blueAccent.withOpacity(0.2),
                             onSelected: (value) {
                               if (value == 'edit') {
                                 Navigator.push(
@@ -116,19 +125,65 @@ class BudgetScreen extends StatelessWidget {
                                     .deleteBudget(budget.id);
                               }
                             },
-                            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
+                            itemBuilder: (context) => [
+                              PopupMenuItem<String>(
                                 value: 'edit',
-                                child: Text('Edit'),
+                                child: Row(
+                                  children: [
+                                    ShaderMask(
+                                      shaderCallback: (bounds) =>
+                                          const LinearGradient(
+                                            colors: [Colors.blue, Colors.cyan],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ).createShader(bounds),
+                                      child: const Icon(Icons.edit,
+                                          color: Colors.white, size: 18),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Edit',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const PopupMenuItem<String>(
+                              PopupMenuItem<String>(
                                 value: 'delete',
-                                child: Text('Delete'),
+                                child: Row(
+                                  children: [
+                                    ShaderMask(
+                                      shaderCallback: (bounds) =>
+                                          const LinearGradient(
+                                            colors: [Colors.red, Colors.orange],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ).createShader(bounds),
+                                      child: const Icon(Icons.delete,
+                                          color: Colors.white, size: 18),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Delete',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
+                            icon: const Icon(Icons.more_horiz_rounded, color: Colors.grey),
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 16),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),

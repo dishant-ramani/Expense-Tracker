@@ -20,7 +20,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // ✅ No AppBar (defined in default layout)
       body: Consumer2<TransactionProvider, CategoryProvider>(
         builder: (context, transactionProvider, categoryProvider, child) {
           if (transactionProvider.isLoading || categoryProvider.isLoading) {
@@ -84,84 +83,54 @@ class _InsightsScreenState extends State<InsightsScreen> {
             'Entertainment': const Color(0xFF1E88E5),
           };
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+          // ✅ Center the chart vertically and horizontally
+          return Center(
+            child: SizedBox(
+              height: 380,
+              width: 380,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  SizedBox(
-                    height: 360,
-                    width: 360,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        PieChart(
-                          PieChartData(
-                            sections: _buildOuterRing(
-                              totalIncome,
-                              totalExpenses,
-                              grandTotal,
-                            ),
-                            startDegreeOffset: -90,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 4,
-                            centerSpaceRadius: 120,
-                          ),
-                        ),
-                        PieChart(
-                          PieChartData(
-                            sections: _buildInnerPie(
-                              incomeCategoryTotals,
-                              expenseCategoryTotals,
-                              grandTotal,
-                              categoryColors,
-                            ),
-                            startDegreeOffset: -90,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 60,
-                            // ✅ Tooltip & tap detection
-                            pieTouchData: PieTouchData(
-                              touchCallback: (event, response) {
-                                setState(() {
-                                  if (!event.isInterestedForInteractions ||
-                                      response == null ||
-                                      response.touchedSection == null) {
-                                    touchedIndex = -1;
-                                    return;
-                                  }
-                                  touchedIndex =
-                                      response.touchedSection!.touchedSectionIndex;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                  PieChart(
+                    PieChartData(
+                      sections: _buildOuterRing(
+                        totalIncome,
+                        totalExpenses,
+                        grandTotal,
+                      ),
+                      startDegreeOffset: -90,
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 4,
+                      centerSpaceRadius: 120,
                     ),
                   ),
-
-                  const SizedBox(height: 40),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLegend(
-                        'INCOME',
-                        const Color(0xFF2E8B57),
+                  PieChart(
+                    PieChartData(
+                      sections: _buildInnerPie(
                         incomeCategoryTotals,
-                        categoryColors,
-                        true,
-                      ),
-                      _buildLegend(
-                        'EXPENSE',
-                        const Color(0xFFD22B2B),
                         expenseCategoryTotals,
+                        grandTotal,
                         categoryColors,
-                        false,
                       ),
-                    ],
+                      startDegreeOffset: -90,
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 60,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, response) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                response == null ||
+                                response.touchedSection == null) {
+                              touchedIndex = -1;
+                              return;
+                            }
+                            touchedIndex =
+                                response.touchedSection!.touchedSectionIndex;
+                          });
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -271,59 +240,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
           fontWeight: FontWeight.w500,
         ),
       ),
-    );
-  }
-
-  /// Legend
-  Widget _buildLegend(
-    String title,
-    Color titleColor,
-    Map<String, double> categoryTotals,
-    Map<String, Color> colors,
-    bool isIncome,
-  ) {
-    final defaultColor =
-        isIncome ? const Color(0xFF7B1FA2) : const Color(0xFFFFA500);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.lora(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: titleColor,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...categoryTotals.keys.map((category) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: colors[category] ?? defaultColor,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  category,
-                  style: GoogleFonts.lora(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ],
     );
   }
 }
