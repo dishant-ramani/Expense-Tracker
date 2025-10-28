@@ -6,8 +6,15 @@ import 'package:myapp/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/category.dart' as my_category;
 
-class InsightsScreen extends StatelessWidget {
+class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
+
+  @override
+  State<InsightsScreen> createState() => _InsightsScreenState();
+}
+
+class _InsightsScreenState extends State<InsightsScreen> {
+  int touchedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +89,6 @@ class InsightsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Pie chart container
                   SizedBox(
                     height: 360,
                     width: 360,
@@ -114,6 +120,21 @@ class InsightsScreen extends StatelessWidget {
                             borderData: FlBorderData(show: false),
                             sectionsSpace: 2,
                             centerSpaceRadius: 60,
+                            // ✅ Tooltip & tap detection
+                            pieTouchData: PieTouchData(
+                              touchCallback: (event, response) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      response == null ||
+                                      response.touchedSection == null) {
+                                    touchedIndex = -1;
+                                    return;
+                                  }
+                                  touchedIndex =
+                                      response.touchedSection!.touchedSectionIndex;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -122,7 +143,6 @@ class InsightsScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  // Legends section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +172,7 @@ class InsightsScreen extends StatelessWidget {
     );
   }
 
-  /// Outer ring for income vs expense
+  /// Outer ring (income vs expense)
   List<PieChartSectionData> _buildOuterRing(
       double income, double expenses, double total) {
     if (total == 0) return [];
@@ -188,7 +208,7 @@ class InsightsScreen extends StatelessWidget {
     ];
   }
 
-  /// Inner ring with category percentages
+  /// Inner ring with category percentages + tooltip
   List<PieChartSectionData> _buildInnerPie(
     Map<String, double> incomeTotals,
     Map<String, double> expenseTotals,
@@ -198,27 +218,33 @@ class InsightsScreen extends StatelessWidget {
     if (grandTotal == 0) return [];
 
     List<PieChartSectionData> sections = [];
+    final allKeys = {...incomeTotals.keys, ...expenseTotals.keys}.toList();
 
-    // Combine both income and expense categories
-    final allKeys = {...incomeTotals.keys, ...expenseTotals.keys};
-
-    for (var category in allKeys) {
+    for (int i = 0; i < allKeys.length; i++) {
+      final category = allKeys[i];
       final amount =
           (incomeTotals[category] ?? 0) + (expenseTotals[category] ?? 0);
       final percentage = (amount / grandTotal) * 100;
+
+      final isTouched = i == touchedIndex;
+      final radius = isTouched ? 70.0 : 60.0;
 
       sections.add(
         PieChartSectionData(
           value: amount,
           color: colors[category] ?? Colors.grey,
-          radius: 60,
+          radius: radius,
           showTitle: true,
           title: '${percentage.toStringAsFixed(0)}%',
           titleStyle: GoogleFonts.lora(
-            fontSize: 13,
+            fontSize: isTouched ? 15 : 13,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
+          badgeWidget: isTouched
+              ? _buildTooltip(category, percentage)
+              : null, // ✅ show tooltip when tapped
+          badgePositionPercentageOffset: 1.4,
         ),
       );
     }
@@ -226,7 +252,29 @@ class InsightsScreen extends StatelessWidget {
     return sections;
   }
 
-  /// Legend builder
+  /// Tooltip widget on slice tap
+  Widget _buildTooltip(String category, double percentage) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Text(
+        '$category: ${percentage.toStringAsFixed(1)}%',
+        style: GoogleFonts.lora(
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  /// Legend
   Widget _buildLegend(
     String title,
     Color titleColor,
