@@ -4,7 +4,9 @@ import 'package:myapp/providers/budget_provider.dart';
 import 'package:provider/provider.dart';
 
 class AddBudgetScreen extends StatefulWidget {
-  const AddBudgetScreen({super.key});
+  final Budget? budget;
+
+  const AddBudgetScreen({super.key, this.budget});
 
   @override
   _AddBudgetScreenState createState() => _AddBudgetScreenState();
@@ -13,7 +15,9 @@ class AddBudgetScreen extends StatefulWidget {
 class _AddBudgetScreenState extends State<AddBudgetScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategory;
-  double? _amount;
+  late TextEditingController _amountController;
+
+  bool get _isEditing => widget.budget != null;
 
   final List<Map<String, dynamic>> _categories = [
     {'name': 'Food', 'icon': Icons.fastfood, 'color': Colors.orange},
@@ -23,6 +27,23 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     {'name': 'Entertainment', 'icon': Icons.movie, 'color': Colors.redAccent},
     {'name': 'Others', 'icon': Icons.category, 'color': Colors.grey},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      _selectedCategory = widget.budget!.category;
+      _amountController = TextEditingController(text: widget.budget!.amount.toString());
+    } else {
+      _amountController = TextEditingController();
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +65,9 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Add Budget',
-                      style: TextStyle(
+                    Text(
+                      _isEditing ? 'Edit Budget' : 'Add Budget',
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -57,10 +78,10 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 const SizedBox(height: 24),
 
                 // 🏷 Category Dropdown with Avatar Icons
-                DropdownButtonFormField(
+                DropdownButtonFormField<String>(
                   value: _selectedCategory,
                   items: _categories.map((category) {
-                    return DropdownMenuItem(
+                    return DropdownMenuItem<String>(
                       value: category['name'],
                       child: Row(
                         children: [
@@ -87,7 +108,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedCategory = value as String?;
+                      _selectedCategory = value;
                     });
                   },
                   decoration: InputDecoration(
@@ -105,6 +126,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
 
                 // 💰 Budget Amount Field
                 TextFormField(
+                  controller: _amountController,
                   decoration: InputDecoration(
                     labelText: 'Budget Amount (₹)',
                     filled: true,
@@ -123,9 +145,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                     }
                     return null;
                   },
-                  onSaved: (value) {
-                    _amount = double.parse(value!);
-                  },
                 ),
                 const SizedBox(height: 30),
 
@@ -141,26 +160,10 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 3,
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        final newBudget = Budget(
-                          id: DateTime.now().toString(),
-                          category: _selectedCategory!,
-                          amount: _amount!,
-                          iconCodePoint: (_categories.firstWhere(
-                            (c) => c['name'] == _selectedCategory!,
-                          )['icon'] as IconData)
-                              .codePoint,
-                        );
-                        Provider.of<BudgetProvider>(context, listen: false)
-                            .addBudget(newBudget);
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text(
-                      'Save Budget',
-                      style: TextStyle(
+                    onPressed: _saveBudget,
+                    child: Text(
+                      _isEditing ? 'Save Changes' : 'Save Budget',
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -174,5 +177,36 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
         ),
       ),
     );
+  }
+
+  void _saveBudget() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      final amount = double.parse(_amountController.text);
+      final categoryName = _selectedCategory!;
+      final categoryData = _categories.firstWhere((c) => c['name'] == categoryName);
+      final icon = categoryData['icon'] as IconData;
+
+      if (_isEditing) {
+        final updatedBudget = Budget(
+          id: widget.budget!.id,
+          category: categoryName,
+          amount: amount,
+          iconCodePoint: icon.codePoint,
+        );
+        Provider.of<BudgetProvider>(context, listen: false)
+            .updateBudget(updatedBudget);
+      } else {
+        final newBudget = Budget(
+          id: DateTime.now().toString(),
+          category: categoryName,
+          amount: amount,
+          iconCodePoint: icon.codePoint,
+        );
+        Provider.of<BudgetProvider>(context, listen: false)
+            .addBudget(newBudget);
+      }
+      Navigator.of(context).pop();
+    }
   }
 }

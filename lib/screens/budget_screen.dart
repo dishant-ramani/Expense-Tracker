@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/models/budget.dart';
 import 'package:myapp/providers/budget_provider.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
@@ -101,12 +102,30 @@ class BudgetScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            color: Colors.grey[700],
-                            onPressed: () {
-                              _showMoreOptions(context, budget.id);
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddBudgetScreen(budget: budget),
+                                  ),
+                                );
+                              } else if (value == 'delete') {
+                                Provider.of<BudgetProvider>(context, listen: false)
+                                    .deleteBudget(budget.id);
+                              }
                             },
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'edit',
+                                child: Text('Edit'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -159,37 +178,6 @@ class BudgetScreen extends StatelessWidget {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-    );
-  }
-
-  void _showMoreOptions(BuildContext context, String budgetId) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.redAccent),
-              title: Text(
-                'Delete',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-              onTap: () {
-                Provider.of<BudgetProvider>(context, listen: false)
-                    .deleteBudget(budgetId);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
