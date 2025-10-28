@@ -20,17 +20,26 @@ class HomeScreen extends StatelessWidget {
     final totalExpenses = transactionProvider.transactions
         .where((t) => t.type == 'expense')
         .fold(0.0, (sum, t) => sum + t.amount);
-    final monthlySpendingPercentage = totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
+    final monthlySpendingPercentage =
+        totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
-    final recentTransactions = transactionProvider.transactions.take(5).toList();
+    final recentTransactions =
+        transactionProvider.transactions.take(5).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF2D3748), 
+      backgroundColor: const Color(0xFFF8FAFC), // Light neutral background
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 2,
         centerTitle: true,
-        title: Text('Home', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
+        title: Text(
+          'Home',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -39,19 +48,33 @@ class HomeScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: _buildSummaryCard('Total Income', totalIncome, Colors.green, isIncome: true)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildSummaryCard('Total Expenses', totalExpenses, Colors.red, isIncome: false)),
+                Expanded(
+                    child:
+                        _buildSummaryCard('Total Income', totalIncome, Colors.green)),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: _buildSummaryCard(
+                        'Total Expenses', totalExpenses, Colors.red)),
               ],
             ),
             const SizedBox(height: 24),
             _buildMonthlySpending(monthlySpendingPercentage),
             const SizedBox(height: 24),
-            Text('Categories', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              'Recent Transactions',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 16),
             ...recentTransactions.map((transaction) {
-              final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId, orElse: () => categoryProvider.categories.first);
-              return _buildCategoryTile(transaction, category, context);
+              final category = categoryProvider.categories.firstWhere(
+                (cat) => cat.id == transaction.categoryId,
+                orElse: () => categoryProvider.categories.first,
+              );
+              return _buildCategoryTile(transaction, category);
             }).toList(),
           ],
         ),
@@ -60,7 +83,8 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
+            MaterialPageRoute(
+                builder: (context) => const AddTransactionScreen()),
           );
         },
         backgroundColor: Colors.green,
@@ -69,21 +93,38 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard(String title, double amount, Color color, {required bool isIncome}) {
+  Widget _buildSummaryCard(String title, double amount, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600])),
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: Colors.grey[700],
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             '₹${NumberFormat('#,##0', 'en_IN').format(amount)}',
-            style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: color),
+            style: GoogleFonts.inter(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
         ],
       ),
@@ -97,8 +138,21 @@ class HomeScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Monthly Spending', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text('${(percentage * 100).toStringAsFixed(0)}% of income spent', style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
+            Text(
+              'Monthly Spending',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            Text(
+              '${(percentage * 100).toStringAsFixed(0)}% of income spent',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -106,7 +160,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: LinearProgressIndicator(
             value: percentage,
-            backgroundColor: Colors.grey[700],
+            backgroundColor: Colors.grey[300],
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
             minHeight: 10,
           ),
@@ -115,7 +169,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTile(dynamic transaction, dynamic category, BuildContext context) {
+  Widget _buildCategoryTile(dynamic transaction, dynamic category) {
     final isIncome = transaction.type == 'income';
     final color = isIncome ? Colors.green : Colors.red;
 
@@ -125,6 +179,13 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Row(
         children: [
@@ -134,21 +195,45 @@ class HomeScreen extends StatelessWidget {
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'), color: color, size: 24),
+            child: Icon(
+              IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+              color: color,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(category.name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
-                Text(isIncome ? 'Income' : 'Expense', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+                Text(
+                  category.name,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  isIncome ? 'Income' : 'Expense',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
               ],
             ),
           ),
-          Text(
-            '${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: color),
+          Flexible(
+            child: Text(
+              '${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
