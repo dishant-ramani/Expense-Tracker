@@ -229,7 +229,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          /// --- AMOUNT + MENU ---
+          /// --- AMOUNT + MENU
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
