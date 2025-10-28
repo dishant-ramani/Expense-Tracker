@@ -202,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  isIncome ? 'Income' : 'Expense',
+                  DateFormat.yMMMd().format(transaction.date),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[600],
