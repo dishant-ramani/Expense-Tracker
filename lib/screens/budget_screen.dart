@@ -12,20 +12,7 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // light neutral background
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
-        centerTitle: true,
-        title: Text(
-          'Budgets',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
+      backgroundColor: const Color(0xFFF8FAFC), // Light neutral background
       body: Consumer3<BudgetProvider, TransactionProvider, CategoryProvider>(
         builder: (context, budgetProvider, transactionProvider, categoryProvider, child) {
           if (budgetProvider.isLoading) {
