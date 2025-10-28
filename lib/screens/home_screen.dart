@@ -17,9 +17,11 @@ class HomeScreen extends StatelessWidget {
     final totalIncome = transactionProvider.transactions
         .where((t) => t.type == 'income')
         .fold(0.0, (sum, t) => sum + t.amount);
+
     final totalExpenses = transactionProvider.transactions
         .where((t) => t.type == 'expense')
         .fold(0.0, (sum, t) => sum + t.amount);
+
     final monthlySpendingPercentage =
         totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
@@ -27,26 +29,39 @@ class HomeScreen extends StatelessWidget {
         transactionProvider.transactions.take(5).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Light neutral background
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// --- INCOME & EXPENSE CARDS ---
             Row(
               children: [
                 Expanded(
-                    child: _buildSummaryCard(
-                        'Total Income', totalIncome, Colors.green)),
+                  child: _buildSummaryCard(
+                    'Total Income',
+                    totalIncome,
+                    Colors.green,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                    child: _buildSummaryCard(
-                        'Total Expenses', totalExpenses, Colors.red)),
+                  child: _buildSummaryCard(
+                    'Total Expenses',
+                    totalExpenses,
+                    Colors.red,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
+
+            /// --- MONTHLY SPENDING BAR ---
             _buildMonthlySpending(monthlySpendingPercentage),
             const SizedBox(height: 24),
+
+            /// --- RECENT TRANSACTIONS HEADER ---
             Text(
               'Recent Transactions',
               style: GoogleFonts.inter(
@@ -56,16 +71,21 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            /// --- TRANSACTION TILES ---
             ...recentTransactions.map((transaction) {
               final category = categoryProvider.categories.firstWhere(
                 (cat) => cat.id == transaction.categoryId,
                 orElse: () => categoryProvider.categories.first,
               );
+
               return _buildCategoryTile(context, transaction, category);
-            }).toList(),
+            }),
           ],
         ),
       ),
+
+      /// --- FLOATING ACTION BUTTON ---
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -80,6 +100,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// --- SUMMARY CARD ---
   Widget _buildSummaryCard(String title, double amount, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -97,13 +118,8 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text(title,
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
           const SizedBox(height: 8),
           Text(
             '₹${NumberFormat('#,##0', 'en_IN').format(amount)}',
@@ -118,6 +134,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// --- MONTHLY SPENDING BAR ---
   Widget _buildMonthlySpending(double percentage) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,10 +152,7 @@ class HomeScreen extends StatelessWidget {
             ),
             Text(
               '${(percentage * 100).toStringAsFixed(0)}% of income spent',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -156,26 +170,29 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTile(BuildContext context, dynamic transaction, dynamic category) {
+  /// --- TRANSACTION TILE ---
+  Widget _buildCategoryTile(
+      BuildContext context, dynamic transaction, dynamic category) {
     final isIncome = transaction.type == 'income';
     final color = isIncome ? Colors.green : Colors.red;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          )
+            color: Colors.black12.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: Row(
         children: [
+          /// --- CATEGORY ICON ---
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -189,6 +206,8 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
+
+          /// --- NAME & TYPE ---
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,46 +222,103 @@ class HomeScreen extends StatelessWidget {
                 ),
                 Text(
                   isIncome ? 'Income' : 'Expense',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style:
+                      GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
           ),
-          Flexible(
-            child: Text(
-              '${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
+
+          /// --- AMOUNT + MENU ---
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'edit') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddTransactionScreen(transaction: transaction),
+              const SizedBox(width: 6),
+
+              /// --- MODERN POPUP MENU ---
+              PopupMenuButton<String>(
+                elevation: 12,
+                color: Colors.white.withOpacity(0.95),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                offset: const Offset(0, 40),
+                shadowColor: Colors.blueAccent.withOpacity(0.2),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddTransactionScreen(transaction: transaction),
+                      ),
+                    );
+                  } else if (value == 'delete') {
+                    Provider.of<TransactionProvider>(context, listen: false)
+                        .deleteTransaction(transaction.id);
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Colors.blue, Colors.cyan],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds),
+                          child:
+                              const Icon(Icons.edit, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Edit',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              } else if (value == 'delete') {
-                Provider.of<TransactionProvider>(context, listen: false).deleteTransaction(transaction.id);
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Text('Edit'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Text('Delete'),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Colors.red, Colors.orange],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds),
+                          child:
+                              const Icon(Icons.delete, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Delete',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                icon: const Icon(Icons.more_horiz_rounded, color: Colors.grey),
               ),
             ],
           ),
