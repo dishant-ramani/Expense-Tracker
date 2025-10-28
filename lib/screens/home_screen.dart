@@ -1,237 +1,154 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:myapp/models/transaction.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:myapp/screens/add_transaction_screen.dart';
-import 'package:myapp/screens/edit_transaction_screen.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Transaction> _filteredTransactions = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_filterTransactions);
-  }
-
-  void _filterTransactions() {
-    final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
-    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredTransactions = transactionProvider.transactions.where((transaction) {
-        final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId);
-        return (transaction.note?.toLowerCase() ?? '').contains(query) ||
-            category.name.toLowerCase().contains(query);
-      }).toList();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _filterTransactions();
-  }
 
   @override
   Widget build(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    final transactions = transactionProvider.transactions;
-    if (_searchController.text.isEmpty) {
-      _filteredTransactions = transactions;
-    }
 
-    double totalIncome = transactionProvider.transactions
+    final totalIncome = transactionProvider.transactions
         .where((t) => t.type == 'income')
-        .fold(0, (sum, t) => sum + t.amount);
-    double totalExpenses = transactionProvider.transactions
+        .fold(0.0, (sum, t) => sum + t.amount);
+    final totalExpenses = transactionProvider.transactions
         .where((t) => t.type == 'expense')
-        .fold(0, (sum, t) => sum + t.amount);
-    double balance = totalIncome - totalExpenses;
+        .fold(0.0, (sum, t) => sum + t.amount);
+    final monthlySpendingPercentage = totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
+
+    final recentTransactions = transactionProvider.transactions.take(5).toList();
 
     return Scaffold(
+      backgroundColor: const Color(0xFF2D3748), 
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Home', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: _buildSummaryCard('Total Income', totalIncome, Colors.green, isIncome: true)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildSummaryCard('Total Expenses', totalExpenses, Colors.red, isIncome: false)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildMonthlySpending(monthlySpendingPercentage),
+            const SizedBox(height: 24),
+            Text('Categories', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 16),
+            ...recentTransactions.map((transaction) {
+              final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId, orElse: () => categoryProvider.categories.first);
+              return _buildCategoryTile(transaction, category, context);
+            }).toList(),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const AddTransactionScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
           );
         },
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildSummaryCard(String title, double amount, Color color, {required bool isIncome}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Income'),
-                        Text(
-                          '\$${totalIncome.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.green),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Expenses'),
-                        Text(
-                          '\$${totalExpenses.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Balance'),
-                        Text(
-                          '\$${balance.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: balance >= 0 ? Colors.green : Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          Text(title, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600])),
+          const SizedBox(height: 8),
+          Text(
+            '₹${NumberFormat('#,##0', 'en_IN').format(amount)}',
+            style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: color),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search transactions...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-              ),
-            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthlySpending(double percentage) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Monthly Spending', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('${(percentage * 100).toStringAsFixed(0)}% of income spent', style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: percentage,
+            backgroundColor: Colors.grey[700],
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            minHeight: 10,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryTile(dynamic transaction, dynamic category, BuildContext context) {
+    final isIncome = transaction.type == 'income';
+    final color = isIncome ? Colors.green : Colors.red;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'), color: color, size: 24),
+          ),
+          const SizedBox(width: 12),
           Expanded(
-            child: _filteredTransactions.isEmpty
-                ? const Center(child: Text('No transactions found.'))
-                : AnimationLimiter(
-                    child: ListView.builder(
-                      itemCount: _filteredTransactions.length,
-                      itemBuilder: (context, index) {
-                        final transaction = _filteredTransactions[index];
-                        final category = categoryProvider.categories.firstWhere((cat) => cat.id == transaction.categoryId);
-                        return AnimationConfiguration.staggeredList(
-                          position: index,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            verticalOffset: 50.0,
-                            child: FadeInAnimation(
-                              child: ListTile(
-                                title: Text(category.name),
-                                subtitle: Text(transaction.note ?? ''),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      '${transaction.amount}',
-                                      style: TextStyle(
-                                        color: transaction.type == 'income'
-                                            ? Colors.green
-                                            : Colors.red,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditTransactionScreen(
-                                                  transaction: transaction,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: const Text(
-                                                'Confirm Deletion',
-                                              ),
-                                              content: const Text(
-                                                'Are you sure you want to delete this transaction?',
-                                              ),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: const Text('Cancel'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: const Text('Delete'),
-                                                  onPressed: () {
-                                                    Provider.of<
-                                                          TransactionProvider>(
-                                                          context,
-                                                          listen: false,
-                                                        )
-                                                        .deleteTransaction(
-                                                          transaction.id,
-                                                        );
-                                                    Navigator.of(context).pop();
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'Transaction deleted',
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(category.name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(isIncome ? 'Income' : 'Expense', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+              ],
+            ),
+          ),
+          Text(
+            '${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}',
+            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),
