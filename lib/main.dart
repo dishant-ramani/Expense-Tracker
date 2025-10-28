@@ -32,10 +32,22 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
               brightness: Brightness.light,
+              scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(color: Colors.black87),
+                bodyMedium: TextStyle(color: Colors.black54),
+                titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
             ),
             darkTheme: ThemeData(
               primarySwatch: Colors.blue,
               brightness: Brightness.dark,
+              scaffoldBackgroundColor: const Color(0xFF121212),
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(color: Colors.white),
+                bodyMedium: TextStyle(color: Colors.white70),
+                titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
             themeMode: themeProvider.themeMode,
             home: const MainScreen(),
