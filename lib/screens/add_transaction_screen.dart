@@ -25,9 +25,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    final categories = categoryProvider.categories
-        .where((c) => c.type == _selectedType)
-        .toList();
+    final categories =
+        categoryProvider.categories.where((c) => c.type == _selectedType).toList();
     if (categories.isNotEmpty) {
       _selectedCategory = categories.first;
     }
@@ -36,120 +35,311 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    final categories = categoryProvider.categories
-        .where((c) => c.type == _selectedType)
-        .toList();
+    final categories =
+        categoryProvider.categories.where((c) => c.type == _selectedType).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Transaction')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Amount'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  return null;
-                },
-              ),
-              DropdownButtonFormField<String>(
-                value: _selectedType,
-                items: ['expense', 'income'].map((String type) {
-                  return DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedType = newValue!;
-                    final updatedCategories = categoryProvider.categories
-                        .where((c) => c.type == _selectedType)
-                        .toList();
-                    _selectedCategory = updatedCategories.isNotEmpty
-                        ? updatedCategories.first
-                        : null;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Type'),
-              ),
-              if (categories.isNotEmpty)
-                DropdownButtonFormField<my_category.Category>(
-                  value: _selectedCategory,
-                  items: categories.map((my_category.Category category) {
-                    return DropdownMenuItem<my_category.Category>(
-                      value: category,
-                      child: Text(category.name),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 🔙 Back Button and Title
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Add Transaction',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // 💵 Amount Field
+                TextFormField(
+                  controller: _amountController,
+                  decoration: InputDecoration(
+                    labelText: 'Amount (₹)',
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // 💰 Type Dropdown (with icons and colors)
+                DropdownButtonFormField<String>(
+                  value: _selectedType,
+                  items: [
+                    {
+                      'value': 'expense',
+                      'icon': Icons.arrow_downward_rounded,
+                      'color': Colors.redAccent,
+                      'label': 'Expense'
+                    },
+                    {
+                      'value': 'income',
+                      'icon': Icons.arrow_upward_rounded,
+                      'color': Colors.green,
+                      'label': 'Income'
+                    },
+                  ].map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type['value'] as String,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor:
+                                (type['color'] as Color).withOpacity(0.15),
+                            child: Icon(
+                              type['icon'] as IconData,
+                              color: type['color'] as Color,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            type['label'] as String,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      _selectedCategory = newValue!;
+                      _selectedType = newValue!;
+                      final updatedCategories = categoryProvider.categories
+                          .where((c) => c.type == _selectedType)
+                          .toList();
+                      _selectedCategory =
+                          updatedCategories.isNotEmpty ? updatedCategories.first : null;
                     });
                   },
-                  decoration: const InputDecoration(labelText: 'Category'),
-                )
-              else
-                const Text('Please add categories for this type in settings'),
-              TextFormField(
-                controller: _noteController,
-                decoration: const InputDecoration(labelText: 'Note'),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Text('Date: ${_selectedDate.toLocal()}'.split(' ')[0]),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (picked != null && picked != _selectedDate) {
-                        setState(() {
-                          _selectedDate = picked;
-                        });
-                      }
-                    },
-                    child: const Text('Select Date'),
+                  decoration: InputDecoration(
+                    labelText: 'Transaction Type',
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate() &&
-                      _selectedCategory != null) {
-                    final transaction = Transaction()
-                      ..id = const Uuid().v4()
-                      ..amount = double.parse(_amountController.text)
-                      ..categoryId = _selectedCategory!.id
-                      ..date = _selectedDate
-                      ..note = _noteController.text
-                      ..type = _selectedType;
+                ),
+                const SizedBox(height: 16),
 
-                    Provider.of<TransactionProvider>(context, listen: false)
-                        .addTransaction(transaction);
+                // 🏷 Category Dropdown with Icons
+                if (categories.isNotEmpty)
+                  DropdownButtonFormField<my_category.Category>(
+                    value: _selectedCategory,
+                    items: categories.map((my_category.Category category) {
+                      final color = _getCategoryColor(category.name);
+                      final icon = _getCategoryIcon(category.name);
 
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
+                      return DropdownMenuItem<my_category.Category>(
+                        value: category,
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundColor: color.withOpacity(0.15),
+                              child: Icon(icon, color: color, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              category.name,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedCategory = newValue!;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Category',
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  )
+                else
+                  const Text(
+                    'No categories found. Please add some in settings.',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                const SizedBox(height: 16),
+
+                // 📝 Note Field
+                TextFormField(
+                  controller: _noteController,
+                  decoration: InputDecoration(
+                    labelText: 'Note (optional)',
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 📅 Date Picker Styled Like Text Field
+                GestureDetector(
+                  onTap: _pickDate,
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Date',
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        suffixIcon:
+                            const Icon(Icons.calendar_today, color: Colors.blueAccent),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      controller: TextEditingController(
+                        text: _selectedDate.toLocal().toString().split(' ')[0],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // 💾 Save Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 3,
+                    ),
+                    onPressed: _saveTransaction,
+                    child: const Text(
+                      'Save Transaction',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  // 📅 Date picker
+  Future<void> _pickDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  // 💾 Save transaction
+  void _saveTransaction() {
+    if (_formKey.currentState!.validate() && _selectedCategory != null) {
+      final transaction = Transaction()
+        ..id = const Uuid().v4()
+        ..amount = double.parse(_amountController.text)
+        ..categoryId = _selectedCategory!.id
+        ..date = _selectedDate
+        ..note = _noteController.text
+        ..type = _selectedType;
+
+      Provider.of<TransactionProvider>(context, listen: false)
+          .addTransaction(transaction);
+
+      Navigator.pop(context);
+    }
+  }
+
+  // 🎨 Helper to get category color
+  Color _getCategoryColor(String name) {
+    switch (name) {
+      case 'Food':
+        return Colors.orange;
+      case 'Transport':
+        return Colors.green;
+      case 'Shopping':
+        return Colors.purple;
+      case 'Bills':
+        return Colors.blue;
+      case 'Entertainment':
+        return Colors.redAccent;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // 🧩 Helper to get category icon
+  IconData _getCategoryIcon(String name) {
+    switch (name) {
+      case 'Food':
+        return Icons.fastfood;
+      case 'Transport':
+        return Icons.directions_bus;
+      case 'Shopping':
+        return Icons.shopping_bag;
+      case 'Bills':
+        return Icons.receipt_long;
+      case 'Entertainment':
+        return Icons.movie;
+      default:
+        return Icons.category;
+    }
   }
 }
