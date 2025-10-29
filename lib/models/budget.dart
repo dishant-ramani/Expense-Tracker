@@ -21,7 +21,7 @@ class Budget {
     required this.id,
     required this.category,
     required this.amount,
-    required this.iconCodePoint,
+    required this.iconCodePoint, IconData? icon,
   });
 
   IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
