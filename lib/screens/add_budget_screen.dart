@@ -48,7 +48,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -61,17 +60,13 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+                      icon: const Icon(Icons.arrow_back_ios_new),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       _isEditing ? 'Edit Budget' : 'Add Budget',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),
@@ -114,7 +109,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   decoration: InputDecoration(
                     labelText: 'Category',
                     filled: true,
-                    fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -130,7 +124,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   decoration: InputDecoration(
                     labelText: 'Budget Amount (₹)',
                     filled: true,
-                    fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -153,7 +146,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -163,9 +156,9 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                     onPressed: _saveBudget,
                     child: Text(
                       _isEditing ? 'Save Changes' : 'Save Budget',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

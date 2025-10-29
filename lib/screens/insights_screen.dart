@@ -19,7 +19,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Consumer2<TransactionProvider, CategoryProvider>(
         builder: (context, transactionProvider, categoryProvider, child) {
           if (transactionProvider.isLoading || categoryProvider.isLoading) {
@@ -30,7 +29,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             return Center(
               child: Text(
                 'No transaction data to display.',
-                style: GoogleFonts.lora(fontSize: 16, color: Colors.black87),
+                style: GoogleFonts.lora(fontSize: 16),
               ),
             );
           }
@@ -94,6 +93,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   PieChart(
                     PieChartData(
                       sections: _buildOuterRing(
+                        context,
                         totalIncome,
                         totalExpenses,
                         grandTotal,
@@ -142,7 +142,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   /// Outer ring (income vs expense)
-  List<PieChartSectionData> _buildOuterRing(
+  List<PieChartSectionData> _buildOuterRing(BuildContext context,
       double income, double expenses, double total) {
     if (total == 0) return [];
 
@@ -152,7 +152,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     return [
       PieChartSectionData(
         value: income,
-        color: const Color(0xFF2E8B57),
+        color: Colors.green,
         radius: 70,
         showTitle: true,
         title: '${(incomePercentage * 100).toStringAsFixed(0)}%',
@@ -164,7 +164,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       ),
       PieChartSectionData(
         value: expenses,
-        color: const Color(0xFFD22B2B),
+        color: Colors.red,
         radius: 70,
         showTitle: true,
         title: '${(expensePercentage * 100).toStringAsFixed(0)}%',
@@ -226,7 +226,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black87,
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
@@ -235,7 +235,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       child: Text(
         '$category: ${percentage.toStringAsFixed(1)}%',
         style: GoogleFonts.lora(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),

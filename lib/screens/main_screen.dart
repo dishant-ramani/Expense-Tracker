@@ -30,20 +30,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Column(
           children: [
             // 🔹 Custom Top Bar (Logo + Settings)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0x11000000),
+                    color: Theme.of(context).shadowColor.withOpacity(0.1),
                     blurRadius: 4,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -61,7 +60,6 @@ class _MainScreenState extends State<MainScreen> {
                   IconButton(
                     icon: const Icon(
                       Icons.settings_rounded,
-                      color: Colors.black87,
                       size: 30,
                     ),
                     onPressed: () {

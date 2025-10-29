@@ -62,7 +62,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         categoryProvider.categories.where((c) => c.type == _selectedType).toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -75,17 +74,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+                      icon: const Icon(Icons.arrow_back_ios_new),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       _isEditing ? 'Edit Transaction' : 'Add Transaction',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),
@@ -97,7 +92,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   decoration: InputDecoration(
                     labelText: 'Amount (₹)',
                     filled: true,
-                    fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -171,7 +165,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   decoration: InputDecoration(
                     labelText: 'Transaction Type',
                     filled: true,
-                    fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -216,7 +209,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     decoration: InputDecoration(
                       labelText: 'Category',
                       filled: true,
-                      fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -235,7 +227,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   decoration: InputDecoration(
                     labelText: 'Note (optional)',
                     filled: true,
-                    fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -251,9 +242,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       decoration: InputDecoration(
                         labelText: 'Date',
                         filled: true,
-                        fillColor: Colors.grey.shade100,
                         suffixIcon:
-                            const Icon(Icons.calendar_today, color: Colors.blueAccent),
+                            Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -271,7 +261,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -281,9 +271,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     onPressed: _saveTransaction,
                     child: Text(
                       _isEditing ? 'Save Changes' : 'Save Transaction',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

@@ -13,7 +13,6 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Light neutral background
       body: Consumer3<BudgetProvider, TransactionProvider, CategoryProvider>(
         builder: (context, budgetProvider, transactionProvider, categoryProvider, child) {
           if (budgetProvider.isLoading) {
@@ -26,7 +25,6 @@ class BudgetScreen extends StatelessWidget {
                 'No budgets added yet.',
                 style: GoogleFonts.inter(
                   fontSize: 16,
-                  color: Colors.grey[700],
                 ),
               ),
             );
@@ -56,7 +54,6 @@ class BudgetScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                color: Colors.white,
                 shadowColor: Colors.black12,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -70,10 +67,10 @@ class BudgetScreen extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 22,
-                                backgroundColor: Colors.blue.shade50,
+                                backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                 child: Icon(
                                   budget.icon,
-                                  color: Colors.blue.shade700,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -85,7 +82,6 @@ class BudgetScreen extends StatelessWidget {
                                     style: GoogleFonts.inter(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
                                     ),
                                   ),
                                   Text(
@@ -106,12 +102,10 @@ class BudgetScreen extends StatelessWidget {
                           // 👇 Stylish Popup Menu (same as TransactionScreen)
                           PopupMenuButton<String>(
                             elevation: 12,
-                            color: Colors.white.withOpacity(0.95),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
                             offset: const Offset(0, 40),
-                            shadowColor: Colors.blueAccent.withOpacity(0.2),
                             onSelected: (value) {
                               if (value == 'edit') {
                                 Navigator.push(
@@ -146,7 +140,6 @@ class BudgetScreen extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
                                       ),
                                     ),
                                   ],
@@ -172,14 +165,13 @@ class BudgetScreen extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                             ],
-                            icon: const Icon(Icons.more_horiz_rounded, color: Colors.grey),
+                            icon: const Icon(Icons.more_horiz_rounded),
                           ),
                         ],
                       ),
@@ -189,9 +181,9 @@ class BudgetScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         child: LinearProgressIndicator(
                           value: progressValue,
-                          backgroundColor: Colors.grey[300],
+                          backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            isOverspent ? Colors.red : Colors.blue,
+                            isOverspent ? Colors.red : Theme.of(context).colorScheme.primary,
                           ),
                           minHeight: 10,
                         ),
@@ -203,14 +195,12 @@ class BudgetScreen extends StatelessWidget {
                           Text(
                             'Spent: ₹${spent.toStringAsFixed(2)}',
                             style: GoogleFonts.inter(
-                              color: Colors.grey[800],
                               fontSize: 14,
                             ),
                           ),
                           Text(
                             'Budget: ₹${budget.amount.toStringAsFixed(2)}',
                             style: GoogleFonts.inter(
-                              color: Colors.grey[800],
                               fontSize: 14,
                             ),
                           ),
@@ -225,13 +215,12 @@ class BudgetScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const AddBudgetScreen()),
           );
         },
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
     );
   }

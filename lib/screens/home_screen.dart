@@ -29,7 +29,6 @@ class HomeScreen extends StatelessWidget {
         transactionProvider.transactions.take(5).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -40,6 +39,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildSummaryCard(
+                    context,
                     'Total Income',
                     totalIncome,
                     Colors.green,
@@ -48,6 +48,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildSummaryCard(
+                    context,
                     'Total Expenses',
                     totalExpenses,
                     Colors.red,
@@ -58,17 +59,13 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             /// --- MONTHLY SPENDING BAR ---
-            _buildMonthlySpending(monthlySpendingPercentage),
+            _buildMonthlySpending(context, monthlySpendingPercentage),
             const SizedBox(height: 24),
 
             /// --- RECENT TRANSACTIONS HEADER ---
             Text(
               'Recent Transactions',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
 
@@ -94,22 +91,21 @@ class HomeScreen extends StatelessWidget {
                 builder: (context) => const AddTransactionScreen()),
           );
         },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   /// --- SUMMARY CARD ---
-  Widget _buildSummaryCard(String title, double amount, Color color) {
+  Widget _buildSummaryCard(BuildContext context, String title, double amount, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           )
@@ -119,7 +115,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
+              style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(
             '₹${NumberFormat('#,##0', 'en_IN').format(amount)}',
@@ -135,7 +131,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// --- MONTHLY SPENDING BAR ---
-  Widget _buildMonthlySpending(double percentage) {
+  Widget _buildMonthlySpending(BuildContext context, double percentage) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -144,15 +140,11 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               'Monthly Spending',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             Text(
               '${(percentage * 100).toStringAsFixed(0)}% of income spent',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
@@ -161,8 +153,8 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: LinearProgressIndicator(
             value: percentage,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
             minHeight: 10,
           ),
         ),
@@ -180,11 +172,11 @@ class HomeScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.08),
+            color: Theme.of(context).shadowColor.withOpacity(0.08),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -214,16 +206,12 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   category.name,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
                   isIncome ? 'Income' : 'Expense',
                   style:
-                      GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                      Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),
@@ -246,12 +234,10 @@ class HomeScreen extends StatelessWidget {
               /// --- MODERN POPUP MENU ---
               PopupMenuButton<String>(
                 elevation: 12,
-                color: Colors.white.withOpacity(0.95),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
                 offset: const Offset(0, 40),
-                shadowColor: Colors.blueAccent.withOpacity(0.2),
                 onSelected: (value) {
                   if (value == 'edit') {
                     Navigator.push(
@@ -283,11 +269,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 10),
                         Text(
                           'Edit',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
                     ),
@@ -308,17 +290,13 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 10),
                         Text(
                           'Delete',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
                     ),
                   ),
                 ],
-                icon: const Icon(Icons.more_horiz_rounded, color: Colors.grey),
+                icon: Icon(Icons.more_horiz_rounded, color: Theme.of(context).iconTheme.color),
               ),
             ],
           ),

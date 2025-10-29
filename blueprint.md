@@ -2,69 +2,48 @@
 
 ## Overview
 
-This document outlines the architecture, features, and design of the personal finance management application. The app allows users to track their income and expenses, manage categories, set budgets, and view their financial activity.
+This document outlines the structure and implementation of the Flutter budget tracking application. It serves as a single source of truth for the project's features, design, and implementation details.
 
-## Style and Design
+## Implemented Features
 
-- **Theme:** The app uses a modern, clean design with support for both light and dark modes. The theme is based on Material Design 3, with a color scheme generated from a seed color.
-- **Typography:** The app uses the Google Fonts package to provide a consistent and readable typography.
-- **Animations:** The app incorporates animations to enhance the user experience, such as staggered list animations for the transaction list.
+### Core Features
 
-## Features
+*   **Transaction Management:** Add, edit, and delete income and expense transactions.
+*   **Budgeting:** Create and manage budgets for different spending categories.
+*   **Insights:** Visualize spending habits with a pie chart showing income vs. expenses and category-wise breakdowns.
+*   **Settings:** Toggle between light and dark themes.
 
-### Financial Summary
+### App Structure
 
-- **Income, Expenses, and Balance:** The home screen displays a summary of the user's total income, expenses, and the remaining balance, providing a quick overview of their financial situation.
+The application is structured using the Provider package for state management, with a clear separation of concerns between UI, providers, and models.
 
-### Transaction Management
+*   **`main.dart`:** The entry point of the application, responsible for initializing providers and setting up the main theme.
+*   **`models/`:** Contains the data models for `Transaction`, `Category`, and `Budget`.
+*   **`providers/`:** Contains the `TransactionProvider`, `CategoryProvider`, `BudgetProvider`, and `ThemeProvider` for managing the application's state.
+*   **`screens/`:** Contains the UI for each screen of the application:
+    *   `add_budget_screen.dart`
+    *   `add_transaction_screen.dart`
+    *   `budget_screen.dart`
+    *   `edit_transaction_screen.dart`
+    *   `home_screen.dart`
+    *   `insights_screen.dart`
+    *   `main_screen.dart`
+    *   `settings_screen.dart`
 
-- **Add, Edit, and Delete Transactions:** Users can add new transactions and edit or delete existing ones directly from the transaction list on the home screen. Each transaction includes an amount, category, date, and an optional note.
-- **Search Transactions:** Users can search for transactions by keyword in the transaction note or category.
+### Design and Theming
 
-### Category Management
+*   **Material Design:** The application uses the Material Design library, with a custom theme defined in `main.dart`.
+*   **Light and Dark Themes:** The application supports both light and dark themes, with the ability to toggle between them in the settings screen.
+*   **Custom Fonts:** The `google_fonts` package is used to apply custom fonts throughout the application.
+*   **Theme-Aware Colors:** All hardcoded colors have been replaced with theme-aware colors to ensure consistency across both light and dark themes.
 
-- **Separate Categories for Income and Expense:** The application now enforces separate category lists for income and expense transactions. When adding or editing a transaction, the category dropdown menu dynamically updates to show only the relevant categories based on the selected transaction type (income or expense).
-- **Manage Categories Screen:** A new screen allows users to add, edit, and delete categories. This provides a centralized place for users to manage their spending and income categories.
+## Current Task: Theme Implementation
 
-### Budget Management
+**Goal:** Implement a theme toggle feature and ensure all screens adhere to the selected theme.
 
-- **Set and Track Budgets:** Users can set monthly budgets for different categories.
-- **Add Budget Screen:** The "Add Budget" screen now includes fields for selecting the amount, category, type (income or expense), and period (daily, weekly, or monthly).
-- **Budget List Screen:** This screen displays a list of all budgets, allowing users to view, edit, and delete them.
-- **Edit Budget Screen:** This screen allows users to edit an existing budget.
+**Plan:**
 
-### Settings
-
-- **Settings Screen:** This screen provides app-related settings.
-- **Theme Toggle:** Users can switch between light and dark mode.
-
-## Architecture
-
-### Navigation
-
-- **Main Screen:** The app uses a `MainScreen` that contains a `BottomNavigationBar` and a `PageView` to switch between the main screens (Home and Budgets), and a `MainDrawer` for navigation.
-- **Main Drawer:** A `MainDrawer` provides navigation to Home and Budgets.
-
-### State Management
-
-- **Provider:** The app uses the `provider` package for state management, with individual providers for transactions, categories, and budgets.
-
-### Services
-
-- **DatabaseService:** This service is responsible for initializing the Hive database.
-- **TransactionService:** This service encapsulates all database operations for transactions, separating the database logic from the UI and state management layers.
-- **BudgetService:** This service encapsulates all database operations for budgets, separating the database logic from the UI and state management layers.
-- **CategoryService:** This service encapsulates all database operations for categories, separating the database logic from the UI and state management layers.
-
-### Data Persistence
-
-- **Hive:** The app uses the `hive` package for local data storage, ensuring that all data is saved on the device.
-- **shared_preferences:** The app uses the `shared_preferences` package to save and retrieve the user's theme preference.
-
-## Current Task: Refactor Category Management
-
-- **`Category` Model:** The `Category` model now includes `iconCodePoint` and `colorValue` to allow for more visual customization.
-- **`CategoryProvider` and `CategoryService`:** These have been introduced to manage the lifecycle of `Category` objects, including adding, updating, and deleting them.
-- **`ManageCategoriesScreen`:** This new screen provides a UI for users to manage their categories.
-- **`AddTransactionScreen`:** This screen now uses the `CategoryProvider` to populate the category dropdown, ensuring that users can select from the categories they have created.
-- **`Transaction` Model:** The `Transaction` model has been updated to store a `categoryId` instead of a category name, which is a more robust way to link transactions to categories.
+1.  **Create a `ThemeProvider`:** A `ThemeProvider` class was created to manage the application's theme state.
+2.  **Update `main.dart`:** The `main.dart` file was updated to use the `ThemeProvider` and define both a light and dark theme.
+3.  **Refactor Screens:** All screen files (`add_budget_screen.dart`, `add_transaction_screen.dart`, `budget_screen.dart`, `edit_transaction_screen.dart`, `home_screen.dart`, `insights_screen.dart`, `main_screen.dart`, `settings_screen.dart`) were refactored to use theme-aware colors instead of hardcoded colors.
+4.  **Fix `SettingsScreen`:** The `SettingsScreen` was updated to correctly call the `toggleTheme` function in the `ThemeProvider` to ensure the theme toggle switch works as expected.
