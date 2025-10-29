@@ -38,6 +38,9 @@ class MyApp extends StatelessWidget {
                 bodyMedium: TextStyle(color: Colors.black54),
                 titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Colors.white,
+              ),
             ),
             darkTheme: ThemeData(
               primarySwatch: Colors.blue,
@@ -47,6 +50,9 @@ class MyApp extends StatelessWidget {
                 bodyLarge: TextStyle(color: Colors.white),
                 bodyMedium: TextStyle(color: Colors.white70),
                 titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Color(0xFF1F1F1F),
               ),
             ),
             themeMode: themeProvider.themeMode,

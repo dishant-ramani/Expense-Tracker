@@ -36,14 +36,14 @@ The application is structured using the Provider package for state management, w
 *   **Light and Dark Themes:** The application supports both light and dark themes, with the ability to toggle between them in the settings screen.
 *   **Custom Fonts:** The `google_fonts` package is used to apply custom fonts throughout the application.
 *   **Theme-Aware Colors:** All hardcoded colors have been replaced with theme-aware colors to ensure consistency across both light and dark themes.
+*   **Bottom Navigation Bar:** The bottom navigation bar is now theme-aware and will adapt to the selected theme.
 
-## Current Task: Theme Implementation
+## Current Task: Bottom Navigation Bar Theme
 
-**Goal:** Implement a theme toggle feature and ensure all screens adhere to the selected theme.
+**Goal:** Make the bottom navigation bar adapt to the selected theme.
 
 **Plan:**
 
-1.  **Create a `ThemeProvider`:** A `ThemeProvider` class was created to manage the application's theme state.
-2.  **Update `main.dart`:** The `main.dart` file was updated to use the `ThemeProvider` and define both a light and dark theme.
-3.  **Refactor Screens:** All screen files (`add_budget_screen.dart`, `add_transaction_screen.dart`, `budget_screen.dart`, `edit_transaction_screen.dart`, `home_screen.dart`, `insights_screen.dart`, `main_screen.dart`, `settings_screen.dart`) were refactored to use theme-aware colors instead of hardcoded colors.
-4.  **Fix `SettingsScreen`:** The `SettingsScreen` was updated to correctly call the `toggleTheme` function in the `ThemeProvider` to ensure the theme toggle switch works as expected.
+1.  **Update `main_screen.dart`:** The `BottomNavyBar` in `main_screen.dart` was updated to use colors from the `ThemeData`.
+2.  **Update `main.dart`:** The `ThemeData` in `main.dart` was updated to include a `bottomAppBarTheme` for both the light and dark themes.
+3.  **Wrap `BottomNavyBar` in a `Consumer`:** The `BottomNavyBar` in `main_screen.dart` was wrapped in a `Consumer` of the `ThemeProvider` to ensure it rebuilds when the theme changes.

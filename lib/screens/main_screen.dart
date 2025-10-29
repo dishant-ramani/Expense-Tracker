@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/providers/theme_provider.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_screen.dart';
 import 'package:myapp/screens/insights_screen.dart';
 import 'package:myapp/screens/settings_screen.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -81,40 +83,35 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavyBar(
-        selectedIndex: _selectedIndex,
-        onItemSelected: _onItemTapped,
-        items: <BottomNavyBarItem>[
-          BottomNavyBarItem(icon: const Icon(Icons.home), title: const Text('Home')),
-          BottomNavyBarItem(icon: const Icon(Icons.account_balance_wallet), title: const Text('Budgets')),
-          BottomNavyBarItem(icon: const Icon(Icons.insights), title: const Text('Insights')),
-        ],
+      bottomNavigationBar: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return BottomNavyBar(
+            selectedIndex: _selectedIndex,
+            onItemSelected: _onItemTapped,
+            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor!,
+            items: <BottomNavyBarItem>[
+              BottomNavyBarItem(
+                icon: const Icon(Icons.home),
+                title: const Text('Home'),
+                activeColor: Theme.of(context).colorScheme.primary,
+                inactiveColor: Theme.of(context).colorScheme.secondary,
+              ),
+              BottomNavyBarItem(
+                icon: const Icon(Icons.account_balance_wallet),
+                title: const Text('Budgets'),
+                activeColor: Theme.of(context).colorScheme.primary,
+                inactiveColor: Theme.of(context).colorScheme.secondary,
+              ),
+              BottomNavyBarItem(
+                icon: const Icon(Icons.insights),
+                title: const Text('Insights'),
+                activeColor: Theme.of(context).colorScheme.primary,
+                inactiveColor: Theme.of(context).colorScheme.secondary,
+              ),
+            ],
+          );
+        },
       ),
-
-      // // 🔹 Bottom Navigation Bar
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: _selectedIndex,
-      //   onTap: _onItemTapped,
-      //   selectedItemColor: Colors.blueAccent,
-      //   unselectedItemColor: Colors.grey,
-      //   type: BottomNavigationBarType.fixed,
-      //   backgroundColor: Colors.white,
-      //   elevation: 8,
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home_rounded),
-      //       label: 'Home',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.account_balance_wallet_rounded),
-      //       label: 'Budgets',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.bar_chart_rounded),
-      //       label: 'Settings',
-      //     ),
-      //   ],
-      // ),
     );
   }
 }
