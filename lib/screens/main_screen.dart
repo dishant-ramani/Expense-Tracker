@@ -5,8 +5,8 @@ import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_screen.dart';
 import 'package:myapp/screens/insights_screen.dart';
 import 'package:myapp/screens/settings_screen.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:ultimate_bottom_navbar/ultimate_bottom_navbar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,6 +24,18 @@ class _MainScreenState extends State<MainScreen> {
     InsightsScreen(),
   ];
 
+  final List<IconData> _navIcons = const [
+    Icons.home,
+    Icons.account_balance_wallet,
+    Icons.insights,
+  ];
+
+  final List<String> _navTitles = const [
+    '',
+    '',
+    '',
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,14 +45,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final bool isDark = theme.brightness == Brightness.dark;
+
+    final Color selectedColor =
+        isDark ? Colors.lightBlueAccent : theme.colorScheme.primary;
+    final Color unselectedColor =
+        isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return Scaffold(
       extendBody: true,
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Modern Glassy Top Bar
+            // 🔹 Glassy Top Bar
             Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               decoration: BoxDecoration(
@@ -60,8 +77,8 @@ class _MainScreenState extends State<MainScreen> {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       gradient: isDark
                           ? LinearGradient(
@@ -89,14 +106,11 @@ class _MainScreenState extends State<MainScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // App Logo
                         Image.asset(
                           'assets/logo.png',
                           height: 35,
                           fit: BoxFit.contain,
                         ),
-
-                        // Settings Icon
                         IconButton(
                           icon: Icon(
                             Icons.settings_rounded,
@@ -107,8 +121,8 @@ class _MainScreenState extends State<MainScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
-                              ),
+                                  builder: (context) =>
+                                      const SettingsScreen()),
                             );
                           },
                         ),
@@ -125,7 +139,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
 
-      // 🔹 Matching Modern Bottom Navbar
+      // 🔹 Glassy Bottom Nav (Styled like Top Bar)
       bottomNavigationBar: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return Container(
@@ -136,9 +150,8 @@ class _MainScreenState extends State<MainScreen> {
                 BoxShadow(
                   color: isDark
                       ? Colors.blueAccent.withOpacity(0.25)
-                      : Colors.grey.withOpacity(0.15),
+                      : Colors.grey.withOpacity(0.2),
                   blurRadius: 20,
-                  spreadRadius: 2,
                   offset: const Offset(0, 8),
                 ),
               ],
@@ -146,16 +159,15 @@ class _MainScreenState extends State<MainScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(28),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                 child: Container(
-                  height: 75,
                   decoration: BoxDecoration(
                     gradient: isDark
                         ? LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.black.withOpacity(0.9),
+                              Colors.black.withOpacity(0.85),
                               Colors.blueGrey.withOpacity(0.7),
                             ],
                           )
@@ -173,55 +185,36 @@ class _MainScreenState extends State<MainScreen> {
                       width: 1,
                     ),
                   ),
-                  child: BottomNavyBar(
-                    selectedIndex: _selectedIndex,
-                    onItemSelected: _onItemTapped,
+                  child: UltimateBottomNavBar(
+                    icons: _navIcons,
+                    titles: _navTitles,
+                    currentIndex: _selectedIndex,
+                    onTap: (index) => _onItemTapped(index),
+
+                    // disable under-curve if it misaligns
+                    underCurve: false,
+                    staticCurve: false,
+                    backgroundHeight: 75,
+                    foregroundHeight: 75,
+                    navMargin: EdgeInsets.zero,
+                    backgroundBorderRadius: BorderRadius.circular(24),
+
+                    // make transparent since we handle background manually
                     backgroundColor: Colors.transparent,
-                    iconSize: 28,
-                    itemCornerRadius: 20,
-                    curve: Curves.easeOutCubic,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    items: <BottomNavyBarItem>[
-                      BottomNavyBarItem(
-                        icon: AnimatedScale(
-                          scale: _selectedIndex == 0 ? 1.2 : 1.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(Icons.home),
-                        ),
-                        title: const Text('Home'),
-                        activeColor: isDark
-                            ? Colors.lightBlueAccent
-                            : theme.colorScheme.primary,
-                        inactiveColor:
-                            isDark ? Colors.grey.shade400 : Colors.grey,
-                      ),
-                      BottomNavyBarItem(
-                        icon: AnimatedScale(
-                          scale: _selectedIndex == 1 ? 1.2 : 1.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(Icons.account_balance_wallet),
-                        ),
-                        title: const Text('Budgets'),
-                        activeColor: isDark
-                            ? Colors.lightBlueAccent
-                            : theme.colorScheme.primary,
-                        inactiveColor:
-                            isDark ? Colors.grey.shade400 : Colors.grey,
-                      ),
-                      BottomNavyBarItem(
-                        icon: AnimatedScale(
-                          scale: _selectedIndex == 2 ? 1.2 : 1.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(Icons.insights),
-                        ),
-                        title: const Text('Insights'),
-                        activeColor: isDark
-                            ? Colors.lightBlueAccent
-                            : theme.colorScheme.primary,
-                        inactiveColor:
-                            isDark ? Colors.grey.shade400 : Colors.grey,
-                      ),
-                    ],
+                    foregroundColor: Colors.transparent,
+                    showForeGround: false,
+                    showForeGroundStrokeAllSide: false,
+                    showBackGroundStrokeAllSide: false,
+
+                    // icon/text appearance
+                    selectedIconColor: selectedColor,
+                    selectedIconSize: 50,
+                    unselectedIconColor: unselectedColor,
+                    unselectedIconSize: 32,
+                    selectedTextSize: 12,
+                    unselectedTextSize: 12,
+                    selectedTextColor: selectedColor,
+                    unselectedTextColor: unselectedColor,
                   ),
                 ),
               ),
