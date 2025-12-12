@@ -12,7 +12,7 @@ class Category extends HiveObject {
   late String name;
 
   @HiveField(2)
-  late int iconCodePoint;
+  late int iconCodePoint;     // You can keep this or ignore it now
 
   @HiveField(3)
   late int colorValue;
@@ -20,6 +20,22 @@ class Category extends HiveObject {
   @HiveField(4)
   late String type; // 'expense' or 'income'
 
-  IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
+  @HiveField(5)
+  late String iconPath;       // 👈 NEW FIELD FOR DIRECT ICON USAGE
+
+  // Getters
+  Widget get icon {
+    if (iconPath != null && iconPath!.isNotEmpty) {
+      return Image.asset(
+        iconPath!,
+        width: 24,
+        height: 24,
+        errorBuilder: (context, error, stackTrace) => 
+            Icon(IconData(iconCodePoint, fontFamily: 'MaterialIcons')),
+      );
+    }
+    return Icon(IconData(iconCodePoint, fontFamily: 'MaterialIcons'));
+  }
+  
   Color get color => Color(colorValue);
 }

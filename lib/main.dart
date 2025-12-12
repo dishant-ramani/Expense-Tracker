@@ -33,11 +33,15 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.blue,
               brightness: Brightness.light,
               scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-              textTheme: const TextTheme(
-                bodyLarge: TextStyle(color: Colors.black87),
-                bodyMedium: TextStyle(color: Colors.black54),
-                titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
+
+              // 👇 APPLY CLASH GROTESK GLOBALLY (Light Theme)
+              fontFamily: 'ClashGrotesk',
+              textTheme: ThemeData.light().textTheme.apply(
+                    fontFamily: 'ClashGrotesk',
+                    bodyColor: Colors.black87,
+                    displayColor: Colors.black87,
+                  ),
+
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 backgroundColor: Colors.white,
               ),
@@ -46,15 +50,20 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.blue,
               brightness: Brightness.dark,
               scaffoldBackgroundColor: const Color(0xFF121212),
-              textTheme: const TextTheme(
-                bodyLarge: TextStyle(color: Colors.white),
-                bodyMedium: TextStyle(color: Colors.white70),
-                titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
+
+              // 👇 APPLY CLASH GROTESK GLOBALLY (Dark Theme)
+              fontFamily: 'ClashGrotesk',
+              textTheme: ThemeData.dark().textTheme.apply(
+                    fontFamily: 'ClashGrotesk',
+                    bodyColor: Colors.white,
+                    displayColor: Colors.white,
+                  ),
+
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 backgroundColor: Color(0xFF1F1F1F),
               ),
             ),
+
             themeMode: themeProvider.themeMode,
             home: const MainScreen(),
           );
