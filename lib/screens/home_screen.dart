@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Figma Colors
   static const Color kPrimaryText = Color(0xFF0C0121);
   static const Color kIncomeCard = Color(0xFFB4D8BD);
   static const Color kExpenseCard = Color(0xFFF5E7D8);
@@ -32,8 +31,7 @@ class HomeScreen extends StatelessWidget {
     final monthlySpendingPercentage =
         totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
-    final recentTransactions =
-        transactionProvider.transactions.take(5).toList();
+    final recentTransactions = transactionProvider.transactions.take(5).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -44,7 +42,6 @@ class HomeScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
 
-            // ------------------- SUMMARY CARDS -------------------
             Row(
               children: [
                 Expanded(
@@ -67,7 +64,6 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ---------------- MONTHLY SPENDING -------------------
             _MonthlySpending(
               percentage: monthlySpendingPercentage,
               bgColor: kExpenseCard,
@@ -76,7 +72,6 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ---------------- RECENT TRANSACTIONS ----------------
             Text(
               "Recent Transactions",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -87,22 +82,31 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            ...recentTransactions.map((tx) {
-              final category = categoryProvider.categories.firstWhere(
-                (cat) => cat.id == tx.categoryId,
-                orElse: () => categoryProvider.categories.first,
-              );
+            /// ------------------ OVERLAPPING TILE LIST ------------------
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: recentTransactions.length,
+              itemBuilder: (context, index) {
+                final tx = recentTransactions[index];
+                final category = categoryProvider.categories.firstWhere(
+                  (cat) => cat.id == tx.categoryId,
+                  orElse: () => categoryProvider.categories.first,
+                );
 
-              return _CategoryTile(
-                transaction: tx,
-                category: category,
-              );
-            }),
+                return Transform.translate(
+                  offset: Offset(0, index == 0 ? 0 : -18),
+                  child: _CategoryTile(
+                    transaction: tx,
+                    category: category,
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),
 
-      // ------------------- FLOATING ACTION BUTTON -------------------
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -138,10 +142,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 //
-// -----------------------------------------------------
-// SUMMARY CARD (Figma-style rounded rectangle)
-// -----------------------------------------------------
-//
+// ------------------------- SUMMARY CARD --------------------------
 class _SummaryCard extends StatelessWidget {
   final String title;
   final double amount;
@@ -160,7 +161,7 @@ class _SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(20), // ← figma radius
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -194,10 +195,7 @@ class _SummaryCard extends StatelessWidget {
 }
 
 //
-// -----------------------------------------------------
-// MONTHLY SPENDING BLOCK (Striped progress bar)
-// -----------------------------------------------------
-//
+// ----------------------- MONTHLY SPENDING ------------------------
 class _MonthlySpending extends StatelessWidget {
   final double percentage;
   final Color bgColor;
@@ -208,7 +206,7 @@ class _MonthlySpending extends StatelessWidget {
     required this.bgColor,
     required this.fillColor,
   });
-  
+
   String _label(double p) => "${(p * 100).toStringAsFixed(0)}% of income spent";
 
   @override
@@ -216,7 +214,6 @@ class _MonthlySpending extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // title + label
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -235,10 +232,7 @@ class _MonthlySpending extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 8),
-
-        // striped progress bar
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: SizedBox(
@@ -258,10 +252,7 @@ class _MonthlySpending extends StatelessWidget {
 }
 
 //
-// -----------------------------------------------------
-// STRIPED PROGRESS BAR (Figma effect)
-// -----------------------------------------------------
-//
+// ----------------------- STRIPED PROGRESS ------------------------
 class _StripedProgressPainter extends CustomPainter {
   final double progress;
   final Color bgColor;
@@ -280,19 +271,17 @@ class _StripedProgressPainter extends CustomPainter {
       const Radius.circular(10),
     );
 
-    // Background
     canvas.drawRRect(r, Paint()..color = bgColor);
 
     final filled = size.width * progress;
 
-    // Filled segment
     final filledRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, 0, filled, size.height),
       const Radius.circular(10),
     );
+
     canvas.drawRRect(filledRect, Paint()..color = fillColor);
 
-    // Stripes
     final stripePaint = Paint()
       ..color = Colors.white.withOpacity(0.08)
       ..strokeWidth = 6;
@@ -314,10 +303,7 @@ class _StripedProgressPainter extends CustomPainter {
 }
 
 //
-// -----------------------------------------------------
-// CATEGORY TILE (With auto icon placeholder system)
-// -----------------------------------------------------
-//
+// -------------------------- CATEGORY TILE --------------------------
 class _CategoryTile extends StatelessWidget {
   final dynamic transaction;
   final dynamic category;
@@ -327,69 +313,55 @@ class _CategoryTile extends StatelessWidget {
     required this.category,
   });
 
-  Future<bool> _assetExists(String assetPath) async {
+  Future<bool> _assetExists(String path) async {
     try {
-      await rootBundle.load(assetPath);
+      await rootBundle.load(path);
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  /// Automatically loads:
-  /// assets/icons/<category_name>.png
-  /// assets/icons/<category_name>.svg (treated as PNG unless flutter_svg added)
-  ///
-  /// If missing → falls back to MaterialIcons using iconCodePoint
-  Widget _buildCategoryIcon(Color bgColor) {
-    final safeName =
-        category.name.toString().toLowerCase().replaceAll(" ", "_");
+  Widget _buildIcon(Color tint, Color bg) {
+    final safe = category.name.toString().toLowerCase().replaceAll(" ", "_");
 
-    final pngPath = "assets/icons/$safeName.png";
-    final svgPath = "assets/icons/$safeName.svg";
+    final png = "assets/icons/$safe.png";
+    final svg = "assets/icons/$safe.svg";
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      width: 46,
+      height: 46,
       decoration: BoxDecoration(
-        color: bgColor,
+        color: bg,
         shape: BoxShape.circle,
       ),
-      child: FutureBuilder<bool>(
-        future: _assetExists(pngPath),
-        builder: (context, snapshotPng) {
-          if (!snapshotPng.hasData) {
-            return const SizedBox(width: 22, height: 22);
+      alignment: Alignment.center,
+      child: FutureBuilder(
+        future: _assetExists(png),
+        builder: (context, snap) {
+          if (!snap.hasData) return const SizedBox(width: 22, height: 22);
+
+          if (snap.data == true) {
+            return Image.asset(png, width: 22, height: 22);
           }
 
-          if (snapshotPng.data == true) {
-            return Image.asset(pngPath, height: 22, width: 22);
-          }
+          return FutureBuilder(
+            future: _assetExists(svg),
+            builder: (context, svgSnap) {
+              if (!svgSnap.hasData) return const SizedBox(width: 22, height: 22);
 
-          return FutureBuilder<bool>(
-            future: _assetExists(svgPath),
-            builder: (context, snapshotSvg) {
-              if (!snapshotSvg.hasData) {
-                return const SizedBox(width: 22, height: 22);
-              }
-
-              if (snapshotSvg.data == true) {
+              if (svgSnap.data == true) {
                 return SvgPicture.asset(
-                  svgPath,
-                  height: 22,
+                  svg,
                   width: 22,
-                  colorFilter: ColorFilter.mode(
-                    transaction.type == "income" ? Colors.green : Colors.red,
-                    BlendMode.srcIn,
-                  ),
+                  height: 22,
+                  colorFilter: ColorFilter.mode(tint, BlendMode.srcIn),
                 );
               }
 
-              // fallback → material icon
               return Icon(
-                IconData(category.iconCodePoint,
-                    fontFamily: 'MaterialIcons'),
-                color:
-                    transaction.type == "income" ? Colors.green : Colors.red,
+                IconData(category.iconCodePoint, fontFamily: "MaterialIcons"),
+                color: tint,
                 size: 22,
               );
             },
@@ -401,95 +373,83 @@ class _CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncome = transaction.type == 'income';
+    final isIncome = transaction.type == "income";
 
-    final amountColor =
-        isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+    final tileBg = isIncome ? const Color(0xFFB4D8BD) : const Color(0xFFF5E7D8);
+    final iconBg = isIncome ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF);
 
-    final bgColor =
-        isIncome ? const Color(0xFFE8F8EF) : const Color(0xFFFFF1F2);
+    final iconColor = Colors.black87; // matches screenshot
+    final amountColor = isIncome ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
 
-    final formattedDate = DateFormat('dd MMM yyyy').format(transaction.date);
+    final date = DateFormat("dd MMM yyyy").format(transaction.date);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // Figma radius
+        color: tileBg,
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
       child: Row(
         children: [
-          _buildCategoryIcon(bgColor),
-          const SizedBox(width: 12),
+          _buildIcon(iconColor, iconBg),
+          const SizedBox(width: 14),
 
-          // name + date
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  category.name,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: HomeScreen.kPrimaryText,
+                /// -------- TITLE + AMOUNT (same row) --------
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      category.name,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: HomeScreen.kPrimaryText,
+                          ),
+                    ),
+
+                    Text(
+                      "${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: amountColor,
                       ),
+                    )
+                  ],
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(
-                  formattedDate,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: HomeScreen.kPrimaryText.withOpacity(0.6),
-                      ),
-                ),
+                  date,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF8A8A8A),
+                  ),
+                )
               ],
             ),
           ),
 
-          // amount
-          Text(
-            "${isIncome ? '+' : '-'}₹${NumberFormat('#,##0', 'en_IN').format(transaction.amount)}",
-            style: TextStyle(
-              color: amountColor,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
-          ),
+          const SizedBox(width: 8),
 
-          const SizedBox(width: 6),
-
-          // menu
           PopupMenuButton<String>(
             elevation: 12,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            offset: const Offset(0, 40),
-            onSelected: (value) {
-              if (value == 'edit') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        AddTransactionScreen(transaction: transaction),
-                  ),
-                );
-              } else if (value == 'delete') {
-                Provider.of<TransactionProvider>(context, listen: false)
-                    .deleteTransaction(transaction.id);
-              }
-            },
-            itemBuilder: (context) => const [
+            itemBuilder: (_) => const [
               PopupMenuItem(value: "edit", child: Text("Edit")),
               PopupMenuItem(value: "delete", child: Text("Delete")),
             ],
+            onSelected: (v) {},
             icon: const Icon(Icons.more_horiz_rounded,
                 color: HomeScreen.kPrimaryText),
           ),

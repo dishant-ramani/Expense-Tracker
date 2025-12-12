@@ -29,11 +29,7 @@ dependencies:
   ultimate_bottom_navbar: ^0.0.7
 
   # Added for SVG icons (vector icons inside the app)
-<<<<<<< HEAD
   flutter_svg: ^2.2.3
-=======
-  flutter_svg: ^2.0.7
->>>>>>> 36a3720f98ff922fd9cf5ebcb4c31cfbdf164c66
 
 dev_dependencies:
   flutter_test:
@@ -59,7 +55,6 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
 
-<<<<<<< HEAD
   fonts:
     - family: ClashGrotesk
       fonts:
@@ -70,8 +65,3 @@ flutter:
     - assets/logo.png
     - assets/icons/        # include all files in the icons folder (png/svg/foreground/background etc.)
     - assets/fonts/
-=======
-  assets:
-    - assets/logo.png
-    - assets/icons/        # include all files in the icons folder (png/svg/foreground/background etc.)
->>>>>>> 36a3720f98ff922fd9cf5ebcb4c31cfbdf164c66
