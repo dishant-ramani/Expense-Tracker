@@ -1,27 +1,78 @@
+// Core Flutter and third-party imports
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
+
+// Local application imports
 import 'package:myapp/models/budget.dart';
 import 'package:myapp/providers/budget_provider.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/transaction_provider.dart';
 import 'package:myapp/screens/add_budget_screen.dart';
-import 'package:provider/provider.dart';
 
+/// BudgetScreen displays a list of user's budgets with their spending progress
+/// and allows managing (add/edit/delete) budgets.
 class BudgetScreen extends StatelessWidget {
   const BudgetScreen({super.key});
 
+  // Helper method to check if an asset exists
+  Future<bool> _assetExists(String path) async {
+    try {
+      await rootBundle.load(path);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Build category icon with fallback
+  Widget _buildCategoryIcon(String categoryName) {
+    final safeName = categoryName.toLowerCase().replaceAll(' ', '_');
+    final svgPath = 'assets/icons/$safeName.svg';
+    
+    return FutureBuilder<bool>(
+      future: _assetExists(svgPath),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done && snapshot.data == true) {
+          return SvgPicture.asset(
+            svgPath,
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(Color(0xFF000000), BlendMode.srcIn),
+          );
+        }
+        
+        // Fallback to default icon if SVG doesn't exist
+        return const Icon(
+          Icons.category_rounded,
+          color: Color(0xFF000000),
+          size: 24,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Color constants for the budget screen
     const primaryBlue = Color(0xFF3B82F6);
     const secondaryGreen = Color(0xFF22C55E);
 
     return Scaffold(
+      backgroundColor: Colors.white,
+      // Main content area showing budgets list
       body: Consumer3<BudgetProvider, TransactionProvider, CategoryProvider>(
+        // Using Consumer3 to access multiple providers
         builder: (context, budgetProvider, transactionProvider, categoryProvider, child) {
+          // Show loading indicator while budgets are being loaded
           if (budgetProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Show empty state when no budgets exist
           if (budgetProvider.budgets.isEmpty) {
             return Center(
               child: Text(
@@ -31,21 +82,26 @@ class BudgetScreen extends StatelessWidget {
             );
           }
 
+          // Build a scrollable list of budget items
           return ListView.builder(
             padding: const EdgeInsets.all(12.0),
             itemCount: budgetProvider.budgets.length,
             itemBuilder: (context, index) {
+              // Get current budget item and its corresponding category ID
               final budget = budgetProvider.budgets[index];
               final categoryId = categoryProvider.categories
                   .firstWhere((c) => c.name == budget.category)
                   .id;
 
+              // Calculate total spent in this budget category
               final spent = transactionProvider.transactions
                   .where((t) => t.type == 'expense' && t.categoryId == categoryId)
                   .fold(0.0, (sum, t) => sum + t.amount);
 
+              // Calculate remaining budget and check if overspent
               final remaining = budget.amount - spent;
               final isOverspent = remaining < 0;
+              // Calculate progress value between 0.0 and 1.0 for the progress bar
               final progressValue =
                   budget.amount > 0 ? (spent / budget.amount).clamp(0.0, 1.0) : 0.0;
 
@@ -53,7 +109,7 @@ class BudgetScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: const Color(0xFFB4D8BD), // Light green background with 20% opacity
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
@@ -66,7 +122,10 @@ class BudgetScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// --- HEADER ROW ---
+                    // =============================
+                    // BUDGET ITEM HEADER
+                    // Contains category icon, name, and menu button
+                    // =============================
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -74,12 +133,8 @@ class BudgetScreen extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 22,
-                              backgroundColor: secondaryGreen.withOpacity(0.1),
-                              child: Icon(
-                                budget.icon,
-                                color: secondaryGreen,
-                                size: 24,
-                              ),
+                              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                              child: _buildCategoryIcon(budget.category),
                             ),
                             const SizedBox(width: 12),
                             Column(
@@ -87,19 +142,23 @@ class BudgetScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   budget.category,
-                                  style: GoogleFonts.inter(
+                                  style: const TextStyle(
+                                    fontFamily: 'ClashGrotesk',
                                     fontSize: 17,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
                                   isOverspent
                                       ? 'Overspent: ₹${remaining.abs().toStringAsFixed(2)}'
                                       : 'Remaining: ₹${remaining.toStringAsFixed(2)}',
-                                  style: GoogleFonts.inter(
+                                  style: const TextStyle(
+                                    fontFamily: 'ClashGrotesk',
                                     fontSize: 13,
-                                    color: isOverspent ? Colors.red : secondaryGreen,
+                                    color: Colors.red,
                                     fontWeight: FontWeight.w500,
+                                  ).copyWith(
+                                    color: isOverspent ? Colors.red : const Color(0xFF0C0121),
                                   ),
                                 ),
                               ],
@@ -107,11 +166,21 @@ class BudgetScreen extends StatelessWidget {
                           ],
                         ),
 
-                        /// --- MODERN POPUP MENU ---
+                        // =============================
+                    // BUDGET ACTIONS MENU
+                    // Shows edit/delete options when menu button is pressed
+                    // =============================
                         PopupMenuButton<String>(
                           elevation: 12,
+                          
+                          color: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 160,
+                            maxWidth: 200,
                           ),
                           offset: const Offset(0, 40),
                           onSelected: (value) {
@@ -130,55 +199,71 @@ class BudgetScreen extends StatelessWidget {
                           itemBuilder: (context) => [
                             PopupMenuItem<String>(
                               value: 'edit',
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              height: 40,
                               child: Row(
                                 children: [
-                                  ShaderMask(
-                                    shaderCallback: (bounds) => const LinearGradient(
-                                      colors: [Color(0xFF3B82F6), Color(0xFF06B6D4)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                    child: const Icon(Icons.edit,
-                                        color: Colors.white, size: 18),
+                                  SvgPicture.asset(
+                                    'assets/icons/edit.svg',
+                                    width: 20,
+                                    height: 20,
+                                    colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 12),
                                   Text(
                                     'Edit',
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                    style: const TextStyle(
+                                      fontFamily: 'ClashGrotesk',
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
+                            const PopupMenuDivider(),
                             PopupMenuItem<String>(
                               value: 'delete',
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              height: 40,
                               child: Row(
                                 children: [
-                                  ShaderMask(
-                                    shaderCallback: (bounds) => const LinearGradient(
-                                      colors: [Color(0xFFF43F5E), Color(0xFFF97316)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                    child: const Icon(Icons.delete,
-                                        color: Colors.white, size: 18),
+                                  SvgPicture.asset(
+                                    'assets/icons/delete.svg',
+                                    width: 20,
+                                    height: 20,
+                                    colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 12),
                                   Text(
                                     'Delete',
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                    style: const TextStyle(
+                                      fontFamily: 'ClashGrotesk',
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ],
-                          icon: const Icon(Icons.more_horiz_rounded),
+                          icon: const Icon(
+                            Icons.more_vert_rounded,
+                            color: Color(0xFF0C0121),
+                            size: 24,
+                          ),
                         ),
                       ],
                     ),
 
                     const SizedBox(height: 16),
 
-                    /// --- PROGRESS BAR ---
+                    // =============================
+                    // BUDGET PROGRESS BAR
+                    // Visual indicator of spending vs budget
+                    // =============================
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
@@ -192,16 +277,26 @@ class BudgetScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 10),
+                    // =============================
+                    // BUDGET SUMMARY ROW
+                    // Shows spent amount and total budget
+                    // =============================
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Spent: ₹${spent.toStringAsFixed(2)}',
-                          style: GoogleFonts.inter(fontSize: 14),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         Text(
                           'Budget: ₹${budget.amount.toStringAsFixed(2)}',
-                          style: GoogleFonts.inter(fontSize: 14),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500, // Slightly bolder for budget amount
+                          ),
                         ),
                       ],
                     ),
@@ -214,26 +309,26 @@ class BudgetScreen extends StatelessWidget {
       ),
 
       /// --- FAB with gradient ---
-      floatingActionButton: Container(
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [Color(0xFF3B82F6), Color(0xFF22C55E)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: FloatingActionButton(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const AddBudgetScreen()),
-            );
-          },
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
-      ),
+      // floatingActionButton: Container(
+      //   decoration: const BoxDecoration(
+      //     shape: BoxShape.circle,
+      //     gradient: LinearGradient(
+      //       colors: [Color(0xFF3B82F6), Color(0xFF22C55E)],
+      //       begin: Alignment.topLeft,
+      //       end: Alignment.bottomRight,
+      //     ),
+      //   ),
+      //   child: FloatingActionButton(
+      //     backgroundColor: Colors.transparent,
+      //     elevation: 0,
+      //     onPressed: () {
+      //       Navigator.of(context).push(
+      //         MaterialPageRoute(builder: (context) => const AddBudgetScreen()),
+      //       );
+      //     },
+      //     child: const Icon(Icons.add, color: Colors.white),
+      //   ),
+      // ),
     );
   }
 }

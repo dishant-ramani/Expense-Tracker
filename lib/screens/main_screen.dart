@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:myapp/screens/add_budget_screen.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_screen.dart';
 import 'package:myapp/screens/insights_screen.dart';
@@ -80,12 +81,22 @@ class _MainScreenState extends State<MainScreen> {
                   // + Button (Right)
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AddTransactionScreen(),
-                        ),
-                      );
+                      if (_selectedIndex == 0) { // Home tab
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddTransactionScreen(),
+                          ),
+                        );
+                      } else if (_selectedIndex == 1) { // Budget tab
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddBudgetScreen(),
+                          ),
+                        );
+                      }
+                      // For other tabs, the + button does nothing
                     },
                     child: Container(
                       height: 44,
@@ -119,7 +130,7 @@ class _MainScreenState extends State<MainScreen> {
             borderRadius: BorderRadius.circular(36),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withOpacity(0.3),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               )
