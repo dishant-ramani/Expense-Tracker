@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
         totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
     final recentTransactions =
-        transactionProvider.transactions.take(5).toList();
+        transactionProvider.transactions.take(100).toList();
 
     const overlapDistance = 90.0; // ⭐ B: Spacing between overlapped tiles
 
@@ -44,6 +44,18 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
+            
+            Text(
+              'Manage Your Money Smartly ✨',
+              style: const TextStyle(
+                fontFamily: 'ClashGrotesk',
+                fontWeight: FontWeight.w500,
+                color: kPrimaryText,
+                fontSize: 30,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 16),
 
             Row(
               children: [
