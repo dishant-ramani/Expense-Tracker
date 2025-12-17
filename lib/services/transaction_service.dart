@@ -23,7 +23,10 @@ class TransactionService {
 
   Future<List<Transaction>> getTransactions() async {
     final box = await _box;
-    return box.values.toList();
+    final transactions = box.values.toList();
+    // Sort by date in descending order (newest first)
+    transactions.sort((a, b) => b.date.compareTo(a.date));
+    return transactions;
   }
 
   Future<void> clearAllTransactions() async {

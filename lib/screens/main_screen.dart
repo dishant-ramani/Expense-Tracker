@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myapp/screens/home_screen.dart';
 import 'package:myapp/screens/budget_screen.dart';
 import 'package:myapp/screens/insights_screen.dart';
 import 'package:myapp/screens/settings_screen.dart';
+import 'package:myapp/screens/add_transaction_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -52,10 +54,13 @@ class _MainScreenState extends State<MainScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(Icons.currency_exchange,
-                          color: Colors.white, size: 22),
-                    ),
-                  ),
+                      child: SvgPicture.asset(
+                        'assets/icons/coin.svg', // Make sure this path matches your SVG file's location
+                        width: 24,
+                        height: 24,
+                        //color: Colors.white, // Optional: if you want to change the color
+                      ),
+                    ),                  ),
 
                   const SizedBox(width: 12),
 
@@ -64,8 +69,8 @@ class _MainScreenState extends State<MainScreen> {
                     "Paynest",
                     style: TextStyle(
                       fontFamily: "ClashGrotesk",
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
                       color: textColor,
                     ),
                   ),
@@ -73,14 +78,24 @@ class _MainScreenState extends State<MainScreen> {
                   const Spacer(),
 
                   // + Button (Right)
-                  Container(
-                    height: 44,
-                    width: 44,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0C0121),
-                      shape: BoxShape.circle,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddTransactionScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 44,
+                      width: 44,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF0C0121),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add, size: 24, color: Colors.white),
                     ),
-                    child: Icon(Icons.add, size: 24, color: Colors.white),
                   )
                 ],
               ),
@@ -96,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
       // BOTTOM NAV BAR (Figma exact)
       // -------------------------
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+        padding: const EdgeInsets.fromLTRB(40, 0, 40, 20),
         child: Container(
           height: 78,
           decoration: BoxDecoration(
@@ -111,29 +126,29 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(
                 index: 0,
-                icon: Icons.home_rounded,
+                assetPath: 'assets/icons/home.svg',
                 isSelected: _selectedIndex == 0,
               ),
 
               _buildNavItem(
                 index: 1,
-                icon: Icons.account_balance_wallet_rounded,
+                assetPath: 'assets/icons/budget.svg',
                 isSelected: _selectedIndex == 1,
               ),
 
               _buildNavItem(
                 index: 2,
-                icon: Icons.insights_rounded,
+                assetPath: 'assets/icons/insights.svg',
                 isSelected: _selectedIndex == 2,
               ),
 
               _buildNavItem(
                 index: 3,
-                icon: Icons.settings_rounded,
+                assetPath: 'assets/icons/setting.svg',
                 isSelected: _selectedIndex == 3,
               ),
             ],
@@ -147,36 +162,45 @@ class _MainScreenState extends State<MainScreen> {
   // Bottom Nav Item Builder
   // -------------------------
   Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    const Color primary = Color(0xFF0C0121);
+  required int index,
+  required String assetPath,
+  required bool isSelected,
+}) {
+  // Extract the base name and extension
+  final pathSegments = assetPath.split('/');
+  final fileName = pathSegments.last;
+  final baseName = fileName.split('.').first;
+  final extension = fileName.split('.').last;
+  
+  // Create the filled asset path
+  final filledAssetPath = '${assetPath.substring(0, assetPath.lastIndexOf('/'))}/$baseName-fill.$extension';
 
-    if (isSelected) {
-      return GestureDetector(
-        onTap: () => _onItemTapped(index),
-        child: Container(
-          height: 52,
-          width: 52,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Icon(icon, size: 26, color: primary),
+  return GestureDetector(
+    onTap: () => _onItemTapped(index),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: isSelected ? 56 : 48,
+        height: isSelected ? 56 : 48,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0C0121) : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            isSelected ? filledAssetPath : assetPath,
+            width: isSelected ? 48 : 40,
+            height: isSelected ? 48 : 40,
+            colorFilter: ColorFilter.mode(
+              isSelected ? Colors.white : const Color(0xFF000000),
+              BlendMode.srcIn,
+            ),
           ),
         ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      child: SizedBox(
-        height: 52,
-        width: 52,
-        child: Icon(icon, size: 24, color: primary.withOpacity(0.45)),
       ),
-    );
-  }
+    ),
+  );
+
+}
 }

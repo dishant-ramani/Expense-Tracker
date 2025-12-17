@@ -58,7 +58,19 @@ flutter:
   fonts:
     - family: ClashGrotesk
       fonts:
-        - asset: assets/fonts/ClashGrotesk-Variable.ttf
+        - asset: assets/fonts/ClashGrotesk-Extralight.otf
+          weight: 200
+        - asset: assets/fonts/ClashGrotesk-Light.otf
+          weight: 300
+        - asset: assets/fonts/ClashGrotesk-Regular.otf
+          weight: 400
+        - asset: assets/fonts/ClashGrotesk-Medium.otf
+          weight: 500
+        - asset: assets/fonts/ClashGrotesk-Semibold.otf
+          weight: 600
+        - asset: assets/fonts/ClashGrotesk-Bold.otf
+          weight: 700
+
 
 
   assets:
