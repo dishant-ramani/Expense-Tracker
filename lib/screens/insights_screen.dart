@@ -88,8 +88,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
               fontFamily: 'ClashGrotesk',
               color: isActive 
                   ? Colors.white 
-                  : const Color(0xFF707070), // Dark grey for inactive text
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  : Colors.black, // Dark grey for inactive text
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
               fontSize: 16,
               letterSpacing: 0.2,
             ),
@@ -102,6 +102,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Consumer2<TransactionProvider, CategoryProvider>(
         builder: (context, transactionProvider, categoryProvider, child) {
           if (transactionProvider.isLoading || categoryProvider.isLoading) {
@@ -204,7 +205,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 34),
                         SizedBox(
                           height: 300,
                           child: Stack(
@@ -263,7 +264,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             ],
                           ),
                         ),
-                        _buildLegend(incomeCategoryTotals, categoryColors),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 34.0),  // Add space above the legend
+                          child: _buildLegend(incomeCategoryTotals, categoryColors),
+                        ),
                       ],
                       // Expense Section
                       if (!_showIncomeChart && totalExpenses > 0) ...[
@@ -277,7 +281,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 34),
                         SizedBox(
                           height: 300,
                           child: Stack(
@@ -336,7 +340,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             ],
                           ),
                         ),
-                        _buildLegend(expenseCategoryTotals, categoryColors),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 24.0),  // Add space above the legend
+                          child: _buildLegend(expenseCategoryTotals, categoryColors),
+                        ),
                       ],
                       const SizedBox(height: 32),
                     ],

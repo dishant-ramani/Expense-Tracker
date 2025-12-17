@@ -78,7 +78,8 @@ class _MainScreenState extends State<MainScreen> {
 
                   const Spacer(),
 
-                  // + Button (Right)
+                  // + Button (Right) - Only show for Home and Budget tabs
+                  if (_selectedIndex != 2 && _selectedIndex != 3)
                   GestureDetector(
                     onTap: () {
                       if (_selectedIndex == 0) { // Home tab
