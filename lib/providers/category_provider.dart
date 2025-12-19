@@ -11,7 +11,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Salary'
       ..iconCodePoint = Icons.attach_money.codePoint
       ..iconPath = 'assets/icons/salary.svg'
-      ..colorValue = Colors.green.value
+      ..colorValue = const Color(0xFFFFF9800).value
       ..type = 'income',
 
     my_category.Category()
@@ -19,7 +19,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Business'
       ..iconCodePoint = Icons.business.codePoint
       ..iconPath = 'assets/icons/business.svg'
-      ..colorValue = Colors.green.value
+      ..colorValue = const Color(0xFF4CAF50).value
       ..type = 'income',
 
     my_category.Category()
@@ -27,7 +27,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Investment'
       ..iconCodePoint = Icons.trending_up.codePoint
       ..iconPath = 'assets/icons/investment.svg'
-      ..colorValue = Colors.green.value
+      ..colorValue = const Color(0xFF2196F3).value
       ..type = 'income',
 
     my_category.Category()
@@ -35,7 +35,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Gift'
       ..iconCodePoint = Icons.card_giftcard.codePoint
       ..iconPath = 'assets/icons/gift.svg'
-      ..colorValue = Colors.green.value
+      ..colorValue = const Color(0xFF9C27B0).value
       ..type = 'income',
 
     my_category.Category()
@@ -43,7 +43,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Others'
       ..iconCodePoint = Icons.more_horiz.codePoint
       ..iconPath = 'assets/icons/ic_others_income.svg'
-      ..colorValue = Colors.green.value
+      ..colorValue = const Color(0xFFFF9800).value
       ..type = 'income',
 
     // ---------------- EXPENSE ---------------- //
@@ -52,7 +52,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Food'
       ..iconCodePoint = Icons.fastfood.codePoint
       ..iconPath = 'assets/icons/food.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFFFF9800).value
       ..type = 'expense',
 
     my_category.Category()
@@ -60,7 +60,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Transport'
       ..iconCodePoint = Icons.directions_car.codePoint
       ..iconPath = 'assets/icons/transport.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFF4CAF50).value
       ..type = 'expense',
 
     my_category.Category()
@@ -68,7 +68,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Bills'
       ..iconCodePoint = Icons.receipt.codePoint
       ..iconPath = 'assets/icons/bills.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFF2196F3).value
       ..type = 'expense',
 
     my_category.Category()
@@ -76,7 +76,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Shopping'
       ..iconCodePoint = Icons.shopping_cart.codePoint
       ..iconPath = 'assets/icons/shopping.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFF9C27B0).value
       ..type = 'expense',
 
     my_category.Category()
@@ -84,7 +84,7 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Entertainment'
       ..iconCodePoint = Icons.movie.codePoint
       ..iconPath = 'assets/icons/entertainment.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFFFF5252).value
       ..type = 'expense',
 
     my_category.Category()
@@ -92,10 +92,19 @@ class CategoryProvider with ChangeNotifier {
       ..name = 'Others'
       ..iconCodePoint = Icons.more_horiz.codePoint
       ..iconPath = 'assets/icons/others_expense.svg'
-      ..colorValue = Colors.red.value
+      ..colorValue = const Color(0xFF4CAF50).value
       ..type = 'expense',
   ];
 
   List<my_category.Category> get categories => _categories;
   bool get isLoading => false;
+
+  my_category.Category? getCategoryById(String? id) {
+    if (id == null) return null;
+    try {
+      return _categories.firstWhere((category) => category.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }
