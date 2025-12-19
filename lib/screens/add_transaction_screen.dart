@@ -89,7 +89,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           _isEditing ? 'Edit Transaction' : 'Add Transaction',
           style: const TextStyle(
             fontFamily: 'ClashGrotesk',
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             fontSize: 20,
             color: Colors.black,
           ),

@@ -16,13 +16,40 @@ class Budget {
 
   @HiveField(3)
   final int iconCodePoint;
+  
+  @HiveField(4)
+  final String? note;
+  
+  @HiveField(5)
+  final String categoryId;
 
   Budget({
     required this.id,
     required this.category,
     required this.amount,
-    required this.iconCodePoint, IconData? icon,
+    required this.iconCodePoint,
+    this.note,
+    required this.categoryId,
   });
 
   IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
+  
+  // For editing existing budgets
+  Budget copyWith({
+    String? id,
+    String? category,
+    double? amount,
+    int? iconCodePoint,
+    String? note,
+    String? categoryId,
+  }) {
+    return Budget(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      amount: amount ?? this.amount,
+      iconCodePoint: iconCodePoint ?? this.iconCodePoint,
+      note: note ?? this.note,
+      categoryId: categoryId ?? this.categoryId,
+    );
+  }
 }

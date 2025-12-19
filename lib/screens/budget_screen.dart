@@ -268,9 +268,9 @@ class BudgetScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
                         value: progressValue,
-                        backgroundColor: primaryBlue.withOpacity(0.15),
+                        backgroundColor: Color(0xFF499465).withOpacity(0.15),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          isOverspent ? Colors.red : secondaryGreen,
+                          isOverspent ? Colors.red : Color(0xFF499465),
                         ),
                         minHeight: 10,
                       ),
