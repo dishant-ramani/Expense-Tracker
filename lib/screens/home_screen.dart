@@ -436,7 +436,11 @@ class _CategoryTile extends StatelessWidget {
               }
 
               return Icon(
-                IconData(category.iconCodePoint, fontFamily: "MaterialIcons"),
+                IconData(
+                  category.iconCodePoint,
+                  fontFamily: 'MaterialIcons',
+                  matchTextDirection: true,
+                ),
                 color: tint,
                 size: 22,
               );
