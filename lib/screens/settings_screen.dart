@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/providers/theme_provider.dart';
-import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -49,23 +45,6 @@ class SettingsScreen extends StatelessWidget {
                         // Navigate to about screen
                       },
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
-                    // Dark Mode option
-                    SwitchListTile(
-                      value: isDarkMode,
-                      onChanged: (value) {
-                        themeProvider.toggleTheme(value);
-                      },
-                      title: const Text(
-                        'Dark Mode',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      secondary: const Icon(Icons.nightlight_round, color: Colors.grey),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
                   ],
                 ),

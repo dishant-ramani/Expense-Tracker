@@ -28,6 +28,9 @@ dependencies:
   bottom_navy_bar: ^6.1.0
   ultimate_bottom_navbar: ^0.0.7
 
+  google_mobile_ads: ^5.0.0
+
+
   # Added for SVG icons (vector icons inside the app)
   flutter_svg: ^2.2.3
 

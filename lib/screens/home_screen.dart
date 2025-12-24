@@ -435,6 +435,7 @@ class _CategoryTile extends StatelessWidget {
                 );
               }
 
+              // Use Icon with direct icon data to ensure tree shaking works
               return Icon(
                 IconData(
                   category.iconCodePoint,
