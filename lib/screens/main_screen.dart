@@ -36,7 +36,9 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBody: true,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // -------------------------
@@ -51,6 +53,7 @@ class _MainScreenState extends State<MainScreen> {
                     height: 42,
                     width: 42,
                     decoration: const BoxDecoration(
+                      
                       color: Color(0xFF0C0121),
                       shape: BoxShape.circle,
                     ),
@@ -125,6 +128,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(40, 0, 40, 20),
         child: Container(
+          clipBehavior: Clip.none,
           height: 78,
           decoration: BoxDecoration(
             color: Colors.white,
