@@ -308,27 +308,7 @@ class BudgetScreen extends StatelessWidget {
         },
       ),
 
-      /// --- FAB with gradient ---
-      // floatingActionButton: Container(
-      //   decoration: const BoxDecoration(
-      //     shape: BoxShape.circle,
-      //     gradient: LinearGradient(
-      //       colors: [Color(0xFF3B82F6), Color(0xFF22C55E)],
-      //       begin: Alignment.topLeft,
-      //       end: Alignment.bottomRight,
-      //     ),
-      //   ),
-      //   child: FloatingActionButton(
-      //     backgroundColor: Colors.transparent,
-      //     elevation: 0,
-      //     onPressed: () {
-      //       Navigator.of(context).push(
-      //         MaterialPageRoute(builder: (context) => const AddBudgetScreen()),
-      //       );
-      //     },
-      //     child: const Icon(Icons.add, color: Colors.white),
-      //   ),
-      // ),
+      
     );
   }
 }
