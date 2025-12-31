@@ -7,6 +7,123 @@ import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 import 'add_transaction_screen.dart';
+import '../widgets/filter_dialog.dart';
+
+class DateRangeFilterDialog extends StatefulWidget {
+  final DateTime? initialStartDate;
+  final DateTime? initialEndDate;
+  
+  const DateRangeFilterDialog({
+    Key? key,
+    this.initialStartDate,
+    this.initialEndDate,
+  }) : super(key: key);
+
+  @override
+  _DateRangeFilterDialogState createState() => _DateRangeFilterDialogState();
+}
+
+class _DateRangeFilterDialogState extends State<DateRangeFilterDialog> {
+  late DateTime? _startDate;
+  late DateTime? _endDate;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _startDate = widget.initialStartDate;
+    _endDate = widget.initialEndDate;
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? _startDate ?? DateTime.now() : _endDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          _startDate = picked;
+          if (_endDate != null && _endDate!.isBefore(picked)) {
+            _endDate = null;
+          }
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Filter Transactions'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Select date range:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _selectDate(context, true),
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Start Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(_startDate != null 
+                        ? DateFormat('MMM d, yyyy').format(_startDate!) 
+                        : 'Select start date'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text('to', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _selectDate(context, false),
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'End Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(_endDate != null 
+                        ? DateFormat('MMM d, yyyy').format(_endDate!) 
+                        : 'Select end date'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('CANCEL'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop({
+              'startDate': _startDate,
+              'endDate': _endDate,
+            });
+          },
+          child: const Text('APPLY'),
+        ),
+      ],
+    );
+  }
+}
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -31,20 +148,21 @@ class HomeScreen extends StatelessWidget {
     final monthlySpendingPercentage =
         totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
-    final recentTransactions =
-        transactionProvider.transactions.take(100).toList();
-
-    const overlapDistance = 90.0; // ⭐ B: Spacing between overlapped tiles
+    final recentTransactions = transactionProvider.transactions;
+    const overlapDistance = 90.0; // Spacing between overlapped tiles
 
     return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Expense Tracker'),
+      // ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
-            
+            const SizedBox(height: 16),
+
             Text(
               'Manage Your Money Smartly ✨',
               style: const TextStyle(
@@ -89,12 +207,96 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            Text(
-              "Recent Transactions",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: kPrimaryText,
-                  ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent Transactions',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: kPrimaryText,
+                      ),
+                ),
+                Row(
+                  children: [
+                    if (transactionProvider.isFiltered)
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {
+                          transactionProvider.clearFilters();
+                        },
+                        child: const Row(
+                          children: [
+                            Icon(Icons.clear, size: 14, color: Colors.red),
+                            SizedBox(width: 4),
+                            Text('Clear', style: TextStyle(color: Colors.red, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () async {
+                        final result = await showDialog<Map<String, dynamic>>(
+                          context: context,
+                          builder: (context) => FilterDialog(
+                            initialDateFilterType: transactionProvider.dateFilterType,
+                            initialStartDate: transactionProvider.startDate,
+                            initialEndDate: transactionProvider.endDate,
+                            initialCategoryId: transactionProvider.selectedCategoryId,
+                            initialTransactionType: transactionProvider.transactionType,
+                          ),
+                        );
+
+                        if (result != null) {
+                          if (result['dateFilterType'] == 'all' && 
+                              result['categoryId'] == null && 
+                              result['transactionType'] == null) {
+                            transactionProvider.clearFilters();
+                          } else {
+                            transactionProvider.setDateFilter(
+                              result['dateFilterType'],
+                              customStart: result['startDate'],
+                              customEnd: result['endDate'],
+                            );
+                            transactionProvider.setCategoryFilter(result['categoryId']);
+                            transactionProvider.setTransactionType(result['transactionType']);
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(Icons.tune, size: 24, color: Colors.black),
+                            if (transactionProvider.isFiltered)
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),
@@ -135,37 +337,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-
-      // floatingActionButton: Container(
-      //   decoration: BoxDecoration(
-      //     shape: BoxShape.circle,
-      //     gradient: const LinearGradient(
-      //       colors: [Color(0xFF3B82F6), Color(0xFF22C55E)],
-      //       begin: Alignment.topLeft,
-      //       end: Alignment.bottomRight,
-      //     ),
-      //     boxShadow: [
-      //       BoxShadow(
-      //         color: kPrimaryText.withOpacity(0.12),
-      //         blurRadius: 12,
-      //         offset: const Offset(0, 6),
-      //       )
-      //     ],
-      //   ),
-      //   child: FloatingActionButton(
-      //     backgroundColor: Colors.transparent,
-      //     elevation: 0,
-      //     child: const Icon(Icons.add, color: Colors.white),
-      //     onPressed: () {
-      //       Navigator.push(
-      //         context,
-      //         MaterialPageRoute(
-      //           builder: (_) => const AddTransactionScreen(),
-      //         ),
-      //       );
-      //     },
-      //   ),
-      // ),
     );
   }
 }
@@ -227,7 +398,7 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
-Text(
+          Text(
             "₹${NumberFormat('#,##0', 'en_IN').format(amount)}",
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: HomeScreen.kPrimaryText,
