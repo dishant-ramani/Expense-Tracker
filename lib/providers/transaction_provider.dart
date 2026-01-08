@@ -20,7 +20,10 @@ class TransactionProvider with ChangeNotifier {
   String? _transactionType; // 'income' or 'expense'
   String _dateFilterType = 'all'; // 'all', 'this_week', 'this_month', 'this_year', 'last_month', 'custom'
 
-  TransactionProvider(this._categoryProvider);
+  TransactionProvider(this._categoryProvider) {
+    // Load transactions when the provider is created
+    loadTransactions();
+  }
 
   List<Transaction> get transactions => _filteredTransactions;
   bool get isFiltered => _dateFilterType != 'all' || _selectedCategoryId != null || _transactionType != null;
