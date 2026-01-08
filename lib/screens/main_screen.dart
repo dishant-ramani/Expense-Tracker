@@ -177,46 +177,46 @@ class _MainScreenState extends State<MainScreen> {
   // -------------------------
   // Bottom Nav Item Builder
   // -------------------------
-  Widget _buildNavItem({
+Widget _buildNavItem({
   required int index,
   required String assetPath,
   required bool isSelected,
 }) {
-  // Extract the base name and extension
   final pathSegments = assetPath.split('/');
   final fileName = pathSegments.last;
   final baseName = fileName.split('.').first;
   final extension = fileName.split('.').last;
-  
-  // Create the filled asset path
-  final filledAssetPath = '${assetPath.substring(0, assetPath.lastIndexOf('/'))}/$baseName-fill.$extension';
 
-  return GestureDetector(
-    onTap: () => _onItemTapped(index),
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: isSelected ? 56 : 48,
-        height: isSelected ? 56 : 48,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0C0121) : Colors.transparent,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: SvgPicture.asset(
-            isSelected ? filledAssetPath : assetPath,
-            width: isSelected ? 48 : 40,
-            height: isSelected ? 48 : 40,
-            colorFilter: ColorFilter.mode(
-              isSelected ? Colors.white : const Color(0xFF000000),
-              BlendMode.srcIn,
+  final filledAssetPath =
+      '${assetPath.substring(0, assetPath.lastIndexOf('/'))}/$baseName-fill.$extension';
+
+  return Expanded( // ⭐ KEY FIX 1: equal width on all devices
+    child: GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: Center( // ⭐ KEY FIX 2: force true centering
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: isSelected ? 56 : 48,
+          height: isSelected ? 56 : 48,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF0C0121) : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: SvgPicture.asset(
+              isSelected ? filledAssetPath : assetPath,
+              width: isSelected ? 48 : 40,
+              height: isSelected ? 48 : 40,
+              colorFilter: ColorFilter.mode(
+                isSelected ? Colors.white : const Color(0xFF000000),
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
       ),
     ),
   );
-
 }
+
 }
