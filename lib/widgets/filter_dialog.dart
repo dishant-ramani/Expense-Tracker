@@ -779,14 +779,21 @@ class _FilterDialogState extends State<FilterDialog> {
               ),
             ),
             const SizedBox(height: 6),
-            Wrap(
-              spacing: 8,
-              children: [
-                _buildTypeChip('All', null),
-                _buildTypeChip('Income', 'income'),
-                _buildTypeChip('Expense', 'expense'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTypeChip('All', null),
+                  const SizedBox(width: 8),
+                  _buildTypeChip('Income', 'income'),
+                  const SizedBox(width: 8),
+                  _buildTypeChip('Expense', 'expense'),
+                ],
+              ),
             ),
+
             const SizedBox(height: 4),
             
             // Category Section
