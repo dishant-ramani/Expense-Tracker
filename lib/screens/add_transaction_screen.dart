@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:myapp/models/category.dart' as my_category;
 import 'package:myapp/models/transaction.dart';
 import 'package:myapp/providers/category_provider.dart';
@@ -85,6 +86,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            size: 20,
+            color: Colors.black,
+            
+          ),
+          onPressed: () => Navigator.pop(context),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
         title: Text(
           _isEditing ? 'Edit Transaction' : 'Add Transaction',
           style: const TextStyle(
@@ -93,9 +105,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             fontSize: 20,
             color: Colors.black,
           ),
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.black, // This makes the back button black
         ),
       ),
       body: SingleChildScrollView(
@@ -487,39 +496,48 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         child: Row(
           children: [
             // Radio button
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _selectedType == value ? Colors.black : const Color(0xFFE0E0E0),
-                  width: 2,
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _selectedType == value
+                        ? Colors.black
+                        : const Color(0xFF808890),
+                    width: _selectedType == value ? 6 : 2, // ✅ thicker selected ring
+                  ),
+
                 ),
-              ),
-              child: _selectedType == value
-                  ? Center(
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
-                          shape: BoxShape.circle,
+                child: _selectedType == value
+                    ? Center(
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: Colors.white, // ✅ INNER DOT WHITE
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
-            ),
+                      )
+                    : null,
+              ),
+
+
             const SizedBox(width: 16),
             // Label
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'ClashGrotesk',
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'ClashGrotesk',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: _selectedType == value
+                      ? Colors.black
+                      : const Color(0xFF808890),
+                ),
               ),
-            ),
+
             const Spacer(),
             // Icon
             SvgPicture.asset(

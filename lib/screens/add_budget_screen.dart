@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:myapp/models/budget.dart';
 import 'package:myapp/models/category.dart' as my_category;
 import 'package:myapp/providers/budget_provider.dart';
@@ -306,6 +307,16 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            size: 20,
+            color: Colors.black,
+          ),
+          onPressed: () => Navigator.pop(context),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
         title: Text(
           _isEditing ? 'Edit Budget' : 'Add Budget',
           style: const TextStyle(
