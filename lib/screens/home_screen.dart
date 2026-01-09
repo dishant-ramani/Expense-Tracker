@@ -450,14 +450,29 @@ class _MonthlySpending extends StatelessWidget {
                       fontSize: 14,
                     ),
               ),
-              Text(
-                _label(percentage),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: HomeScreen.kPrimaryText,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "${(percentage * 100).toStringAsFixed(0)}%",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: HomeScreen.kPrimaryText,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600, // ✅ ONLY percentage bold
+                      ),
                     ),
+                    TextSpan(
+                      text: " of income spent",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: HomeScreen.kPrimaryText,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400, // rest same
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
             ],
           ),
           const SizedBox(height: 12),
@@ -504,40 +519,38 @@ class _StripedProgressPainter extends CustomPainter {
     required this.bgColor,
   });
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Draw background
-    final bgRect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final bgPaint = Paint()..color = bgColor;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(bgRect, const Radius.circular(4)),
-      bgPaint,
+@override
+void paint(Canvas canvas, Size size) {
+  final double totalSpacing = (_segmentCount - 1) * _segmentSpacing;
+  final double segmentWidth = (size.width - totalSpacing) / _segmentCount;
+  final int filledSegments = (progress * _segmentCount).round();
+
+  final Paint emptyPaint = Paint()..color = Colors.white;
+  final Paint fillPaint = Paint()..color = fillColor;
+
+  for (int i = 0; i < _segmentCount; i++) {
+    final double left = i * (segmentWidth + _segmentSpacing);
+
+    final RRect segmentRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        left,
+        0,
+        segmentWidth,
+        size.height,
+      ),
+      const Radius.circular(3),
     );
 
-    // Calculate segment width and spacing
-    final double totalSpacing = (_segmentCount - 1) * _segmentSpacing;
-    final double segmentWidth = (size.width - totalSpacing) / _segmentCount;
-    final int filledSegments = (progress * _segmentCount).round();
+    // Draw empty segment
+    canvas.drawRRect(segmentRect, emptyPaint);
 
-    // Draw filled segments
-    if (filledSegments > 0) {
-      final fillPaint = Paint()..color = fillColor;
-      
-      for (int i = 0; i < filledSegments; i++) {
-        final double left = i * (segmentWidth + _segmentSpacing);
-        final segmentRect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            left,
-            0,
-            segmentWidth,
-            size.height,
-          ),
-          const Radius.circular(3), // Slightly increased corner radius for taller segments
-        );
-        canvas.drawRRect(segmentRect, fillPaint);
-      }
+    // Draw filled segment on top if applicable
+    if (i < filledSegments) {
+      canvas.drawRRect(segmentRect, fillPaint);
     }
   }
+}
+
 
   @override
   bool shouldRepaint(covariant _StripedProgressPainter old) {
@@ -829,8 +842,8 @@ class _CategoryTile extends StatelessWidget {
               
               // Constraints for the popup menu
               constraints: const BoxConstraints(
-                minWidth: 160, // Minimum width of the popup menu
-                maxWidth: 200, // Maximum width of the popup menu
+                // minWidth: 160, // Minimum width of the popup menu
+                // maxWidth: 200, // Maximum width of the popup menu
               ),
             ),
         ],
