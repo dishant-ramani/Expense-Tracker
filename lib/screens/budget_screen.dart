@@ -179,8 +179,8 @@ class BudgetScreen extends StatelessWidget {
                           ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
-                            minWidth: 160,
-                            maxWidth: 200,
+                            // minWidth: 160,
+                            // maxWidth: 200,
                           ),
                           offset: const Offset(0, 40),
                           onSelected: (value) {
