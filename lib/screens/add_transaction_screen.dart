@@ -230,13 +230,60 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               const SizedBox(height: 20),
 
               // Note
+              // Note (optional)
               _label("Note (optional)"),
-              _inputField(
-                controller: _noteController,
-                hint: "Add a note",
-                iconPath: 'assets/icons/note.svg',
-                maxLines: 3,
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7F8FA),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE0E0E0)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14), // ✅ same feel as other fields
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: SvgPicture.asset(
+                        'assets/icons/note.svg',
+                        width: 22,
+                        height: 22,
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF757575),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _noteController,
+                        minLines: 1,        // ✅ SAME HEIGHT FEEL
+                        maxLines: 3,        // ✅ expands only if needed
+                        style: const TextStyle(
+                          fontFamily: 'ClashGrotesk',
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: "Enter your note message here",
+                          hintStyle: TextStyle(
+                            fontFamily: 'ClashGrotesk',
+                            color: Color(0xFF9E9E9E),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
+
 
               const SizedBox(height: 20),
 
@@ -341,7 +388,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFF7F8FA),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -615,10 +662,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 24, color: Color(0xFF666666)),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.close, size: 24, color: Color(0xFF666666)),
+                //   onPressed: () => Navigator.pop(context),
+                // ),
               ],
             ),
             const SizedBox(height: 16),
@@ -698,6 +745,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         fontFamily: 'ClashGrotesk',
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: Colors.black,
                       ),
                     ),
                   ),
