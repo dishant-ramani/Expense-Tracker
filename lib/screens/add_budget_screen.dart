@@ -162,7 +162,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFF7F8FA),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -183,7 +183,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                           fontFamily: 'ClashGrotesk',
                           fontSize: 16,
                           color: _selectedCategory != null ? Colors.black : const Color(0xFF9E9E9E),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       const Spacer(),
@@ -339,7 +339,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Amount Field
-                _label('Amount (₹)'),
+                _label('Budget Amount (₹)'),
                 _inputField(
                   controller: _amountController,
                   hint: 'Enter amount',
