@@ -82,10 +82,25 @@ class BudgetScreen extends StatelessWidget {
             );
           }
 
-          // Build a scrollable list of budget items
-          return ListView.builder(
-            padding: const EdgeInsets.all(12.0),
-            itemCount: budgetProvider.budgets.length,
+          // Build a scrollable list of budget items with title
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: Text(
+                  'Budgets',
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  itemCount: budgetProvider.budgets.length,
             itemBuilder: (context, index) {
               // Get current budget item and its corresponding category ID
               final budget = budgetProvider.budgets[index];
@@ -106,8 +121,8 @@ class BudgetScreen extends StatelessWidget {
                   budget.amount > 0 ? (spent / budget.amount).clamp(0.0, 1.0) : 0.0;
 
               return Container(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFFB4D8BD), // Light green background with 20% opacity
                   borderRadius: BorderRadius.circular(15),
@@ -258,7 +273,7 @@ class BudgetScreen extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // =============================
                     // BUDGET PROGRESS BAR
@@ -276,7 +291,7 @@ class BudgetScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     // =============================
                     // BUDGET SUMMARY ROW
                     // Shows spent amount and total budget
@@ -304,11 +319,12 @@ class BudgetScreen extends StatelessWidget {
                 ),
               );
             },
-          );
-        },
-      ),
-
-      
+          )
+              ),
+        ],
+      );
+        }
+      )
     );
   }
 }
