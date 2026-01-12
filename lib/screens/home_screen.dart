@@ -148,7 +148,10 @@ class HomeScreen extends StatelessWidget {
     final monthlySpendingPercentage =
         totalIncome > 0 ? (totalExpenses / totalIncome).clamp(0.0, 1.0) : 0.0;
 
-    final recentTransactions = transactionProvider.transactions;
+    // Show 10 most recent transactions by default, or all if filtered
+    final recentTransactions = transactionProvider.isFiltered 
+        ? transactionProvider.transactions
+        : transactionProvider.transactions.take(10).toList();
     const overlapDistance = 90.0; // Spacing between overlapped tiles
 
     return Scaffold(
