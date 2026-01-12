@@ -32,7 +32,14 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     // About Us option
                     ListTile(
-                      leading: const Icon(Icons.info_outline, color: Colors.grey),
+                      leading: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F8FA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.info_outline, color: Colors.black, size: 20),
+                      ),
                       title: const Text(
                         'About Us',
                         style: TextStyle(
@@ -40,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black),
                       onTap: () {
                         // Navigate to about screen
                       },
