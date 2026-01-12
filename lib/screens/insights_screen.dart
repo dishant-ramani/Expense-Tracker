@@ -186,16 +186,19 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
+              //const SizedBox(height: 8),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                       // Income Section
                       if (_showIncomeChart && totalIncome > 0) ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Text(
                           'Income Breakdown',
                           style: const TextStyle(
@@ -205,7 +208,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 34),
+                        const SizedBox(height: 20),
+
                         SizedBox(
                           height: 300,
                           child: Stack(
@@ -247,7 +251,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                                     style: const TextStyle(
                                       fontFamily: 'ClashGrotesk',
                                       fontSize: 16,
-                                      color: Colors.grey,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   Text(
@@ -271,7 +275,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       ],
                       // Expense Section
                       if (!_showIncomeChart && totalExpenses > 0) ...[
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 12),
                         Text(
                           'Expense Breakdown',
                           style: const TextStyle(
@@ -281,7 +285,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 34),
+                        const SizedBox(height: 20),
+
                         SizedBox(
                           height: 300,
                           child: Stack(
@@ -323,7 +328,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                                     style: const TextStyle(
                                       fontFamily: 'ClashGrotesk',
                                       fontSize: 16,
-                                      color: Colors.grey,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   Text(
@@ -346,7 +351,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
                         ),
                       ],
                       const SizedBox(height: 32),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
